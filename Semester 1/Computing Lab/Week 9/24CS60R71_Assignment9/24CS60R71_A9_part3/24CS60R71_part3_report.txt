@@ -1,0 +1,17 @@
+Performance Comparison:
+Blocking execution time: 0.000471 seconds
+Non-blocking execution time: 2.6e-05 seconds
+-------------------------------------
+1. Performance Comparison:
+The non-blocking implementation showed improved concurrency compared to the traditional blocking version.
+2. Structure and Management of Coroutines and Task System:
+   - Tasks are submitted to a lock-free job queue managed by a thread pool.
+   - Coroutine results are processed as they become available.
+3. Lock-Free Techniques Used:
+   - A lock-free queue is used for task submission, allowing concurrent access without blocking threads.
+4. Thread Pool and Task Scheduling Structure:
+   - The thread pool consists of worker threads that poll the job queue for tasks and execute them asynchronously.
+5. Design of Non-blocking Job Queue:
+   - The job queue is designed to support multiple concurrent enqueue and dequeue operations without blocking.
+6. Challenges Faced and Solutions:
+   - Managing coroutine states and ensuring thread safety was challenging. Used mutexes and atomic flags to handle synchronization.

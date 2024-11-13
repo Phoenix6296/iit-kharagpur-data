@@ -1,0 +1,87 @@
+#1 Calculator Commands
+15.00
+60.00
+Error: Division by zero is not allowed
+
+#2 LCM Commands
+LCM: 40
+LCM: 10499280
+
+#3 Password Generator Commands
+Generated password: 1iA&#
+Generated password: AYUSOH7g!ERTrN+k
+
+#4 Word Count Commands
+Total Lines:        3
+Total Words:       77
+Total Characters:      430
+Frequency of word 'fifa':        3
+Total Lines:        3
+Total Words:       77
+Total Characters:      430
+Frequency of word '2024':        0
+
+#5 API Fetch Commands
+Matching Results:
+- ID: 2446990926 Title: fix:loader-module-webpack
+
+
+#6 To-Do List Manager Commands
+Task added successfully: Walk the dog with priority medium.
+Task added successfully: Call mom with priority low.
+Task added successfully: Finish homework with priority high.
+Task added successfully: Submit project report with priority high.
+Task added successfully: Buy groceries with priority high.
+Task 5 marked as complete.
+Task 3 marked as complete.
+Task added successfully: Pay bills with priority high.
+Error: Invalid priority level. Use 'high', 'medium', or 'low'.
+Error: Task ID 10 not found.
+4    Submit project report    high      incomplete
+6    Pay bills                high      incomplete
+1    Walk the dog             medium    incomplete
+2    Call mom                 low       incomplete
+3    Finish homework          high      complete
+5    Buy groceries            high      complete
+
+#7 Search Books Commands
+Book: Dracula  | Author:  Bram Stoker 
+Context: ... ... 3 The castle...
+Book: Wuthering Heights  | Author:  Emily Bronte 
+Context: ... ... 3 The dark...
+Book: Dracula  | Author:  Bram Stoker 
+Context: ... ... 3 The castle...
+Book: Wuthering Heights  | Author:  Emily Bronte 
+Context: ... ... 3 The dark...
+Book: Wuthering Heights  | Author:  Emily Bronte 
+Context: ...broken only ... the howling...
+Book: Wuthering Heights  | Author:  Emily Bronte 
+Context: ...broken only ... the howling...
+
+#8 Log File Analyzer Command
+Start Time: 2024-01-01 10:00:01
+End Time: 2024-01-01 10:15:01
+Number of Entries: 5
+Top 3 IPs in the window:
+    192.168.1.2 - 2
+    192.168.1.1 - 2
+    192.168.1.3 - 1
+
+#9 Alternating Case Commands
+ThIs Is A tEsT fIlE
+Welcome to IIT Kharagpur
+ThIs Is A tEsT lInE
+ThIs Is A sImPlE tEsT lInE.
+AnOtHeR eXaMpLe WiTh MuLtIpLe TeSt WoRdS.
+Just checking how things work!
+The quick brown fox jumps over the lazy dog.
+TeSt ThIs LiNe As WeLl.
+1234 Is JuSt A nUmBeR, bUt ThIs TeSt Is SpEcIaL.
+
+#10 Lexicographic Text Processor Commands
+Names have been processed and sorted into files.
+E ->        4
+I ->        3
+O ->        3
+W ->        3
+X ->        1

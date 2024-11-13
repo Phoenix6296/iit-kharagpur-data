@@ -1,0 +1,21 @@
+Structure:
+Struct MathOperation { int x, int y; double result; }
+
+Input format:
+Random integers x and y for each mathematical operation.
+
+Output format:
+Result of the operation stored in 'result' field of MathOperation struct.
+
+Time taken for run 1: 6.708e-06 seconds.
+Time taken for run 2: 6.558e-06 seconds.
+Time taken for run 3: 6.91e-06 seconds.
+Time taken for run 4: 6.698e-06 seconds.
+Time taken for run 5: 5.25e-06 seconds.
+
+Final statistics across 5 repetitions of 500 operations:
+Average time: 6.4248e-06 seconds
+Median time: 5e-06 seconds
+Max time: 6.2e-05 seconds
+95th percentile time: 1.6e-05 seconds
+Standard deviation: 5.98023e-07 seconds

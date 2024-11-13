@@ -1,0 +1,19 @@
+1.  Structure:  Sequential execution of mathematical operations using threads.
+
+2.  Input Format: Randomly generated numbers and mathematical operations (addition, subtraction, multiplication, division).
+
+3.  Output Format: Displayed results of the operations on the console, with exceptions handled by outputting messages.
+
+4.
+Time taken for run 1: 7.11779 seconds.
+Time taken for run 2: 7.08858 seconds.
+Time taken for run 3: 7.17142 seconds.
+Time taken for run 4: 7.05851 seconds.
+Time taken for run 5: 7.12926 seconds.
+
+Total run statistics for 5 runs:
+Average time: 7.11311 seconds.
+Standard deviation: 0.0381187 seconds.
+Median time: 7.12352 seconds.
+95th Percentile time: 7.17142 seconds.
+Max time: 7.17142 seconds.

@@ -1,0 +1,11 @@
+Vertical Order: 
+9 
+3 15 
+20 
+7 
+
+Right View: 3 20 7 
+Left View: 3 9 15 
+Top View: 9 3 20 7 
+Bottom View: 9 15 20 7 
+Boundary Traversal: 3 9 15 7 20 

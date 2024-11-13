@@ -1,0 +1,50 @@
+Benchmarking MemFS:
+Benchmark with 100 files, 1 threads
+Number of Threads: 1
+Average Latency: 35631.9 microseconds
+CPU Usage: 0.036893 seconds
+Memory Usage: 4419584 KB
+
+Benchmark with 1000 files, 1 threads
+Number of Threads: 1
+Average Latency: 36342.3 microseconds
+CPU Usage: 0.283813 seconds
+Memory Usage: 12349440 KB
+
+Benchmark with 10000 files, 1 threads
+Number of Threads: 1
+Average Latency: 36699.9 microseconds
+CPU Usage: 2.43958 seconds
+Memory Usage: 14712832 KB
+
+Benchmark with 100 files, 2 threads
+Number of Threads: 2
+Average Latency: 36598.7 microseconds
+CPU Usage: 2.46771 seconds
+Memory Usage: 14712832 KB
+
+Benchmark with 1000 files, 2 threads
+Number of Threads: 2
+Average Latency: 37261.9 microseconds
+CPU Usage: 2.75036 seconds
+Memory Usage: 14712832 KB
+
+Benchmark with 10000 files, 2 threads
+Number of Threads: 2
+Average Latency: 37363.3 microseconds
+CPU Usage: 5.36467 seconds
+Memory Usage: 14712832 KB
+
+Benchmark with 100 files, 4 threads
+Number of Threads: 4
+Average Latency: 35665.2 microseconds
+CPU Usage: 5.38697 seconds
+Memory Usage: 14712832 KB
+
+Benchmark with 1000 files, 4 threads
+Number of Threads: 4
+Average Latency: 34548.6 microseconds
+CPU Usage: 5.61648 seconds
+Memory Usage: 14712832 KB
+
+Benchmark with 10000 files, 4 threads

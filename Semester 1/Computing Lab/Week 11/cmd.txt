@@ -1,0 +1,44 @@
+#1
+bash calculator.sh 10 + 5
+bash calculator.sh 20 * 3
+bash calculator.sh 30 / 0
+#2
+bash lcm.sh numbers_2_1.txt
+bash lcm.sh numbers_2_2.txt
+#3
+bash password.sh 5
+bash password.sh 16
+#4
+bash wordcount.sh file_4.txt fifa
+bash wordcount.sh file_4.txt 2024
+#5
+bash api-fetch.sh Enhancement
+cat combined_issues.json
+#6
+bash todo.sh add "Walk the dog" medium
+bash todo.sh add "Call mom" low
+bash todo.sh add "Finish homework" high
+bash todo.sh add "Submit project report" high
+bash todo.sh add "Buy groceries" high
+bash todo.sh complete 5
+bash todo.sh complete 3
+bash todo.sh add "Pay bills" high
+bash todo.sh add "Watch a movie" urgent
+bash todo.sh complete 10
+bash todo.sh show
+#7
+bash search_books.sh books_7.txt "dark night" -both 3
+bash search_books.sh books_7.txt "howling" -both 2
+#8
+bash analyselog.sh access_8.log 15
+#9
+bash alternatecase.sh file_9_1.txt test
+bash alternatecase.sh file_9_2.txt test
+#10
+bash lexiographic.sh input_dir output_dir
+for file in output_dir/*.txt; do
+  count=$(wc -l < "$file")
+  if [ "$count" -gt 0 ]; then
+    echo "$(basename "$file" .txt) -> $count"
+  fi
+done

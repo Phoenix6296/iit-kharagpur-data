@@ -1,0 +1,17 @@
+[
+{
+  "id": 2448206827,
+  "number": 2817,
+  "title": "Incorrect fallback behavior in `@shopify/react-i18n` causing timezone to reset to default",
+  "user": "asuponev",
+  "labels": ["Type: Bug 🐛,"]
+}
+,
+{
+  "id": 2446990926,
+  "number": 2816,
+  "title": "fix:loader-module-webpack",
+  "user": "admirsaheta",
+  "labels": ["Type: Enhancement"]
+}
+]
