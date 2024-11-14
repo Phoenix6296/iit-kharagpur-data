@@ -13,12 +13,13 @@
 using namespace std;
 
 // Structure to hold file metadata
+// File content, size, creation date and last modified date
 struct FileMetadata
 {
-    string content;      // File content
-    size_t size;         // File size
-    string creationDate; // File creation date
-    string lastModified; // File last modified date
+    string content;
+    size_t size;
+    string creationDate;
+    string lastModified;
 };
 
 class MemFS

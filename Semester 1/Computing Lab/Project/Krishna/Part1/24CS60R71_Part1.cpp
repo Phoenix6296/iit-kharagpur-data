@@ -234,7 +234,7 @@ public:
             while (iss >> token)
                 filenames.push_back(token);
 
-            if (filenames.size() != numFiles)
+            if (filenames.size() != static_cast<size_t>(numFiles))
             {
                 cerr << "error: number of filenames does not match specified -n value" << endl;
                 return;
@@ -269,7 +269,7 @@ public:
                 fileData.push_back({filename, data});
             }
 
-            if (fileData.size() != numFiles)
+            if (fileData.size() != static_cast<size_t>(numFiles))
             {
                 cerr << "error: number of file data pairs does not match specified -n value" << endl;
                 return;
@@ -290,7 +290,7 @@ public:
             while (iss >> token)
                 filenames.push_back(token);
 
-            if (filenames.size() != numFiles)
+            if (filenames.size() != static_cast<size_t>(numFiles))
             {
                 cerr << "error: number of filenames does not match specified -n value" << endl;
                 return;
