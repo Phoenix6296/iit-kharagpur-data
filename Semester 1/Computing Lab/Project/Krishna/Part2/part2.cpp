@@ -40,12 +40,6 @@ private:
         return date.str();
     }
 
-    // Simulate latency
-    void simulateLatency() const
-    {
-        this_thread::sleep_for(chrono::milliseconds(10));
-    }
-
     // File creation helper
     void createFile(const string &filename)
     {
@@ -57,7 +51,6 @@ private:
         }
         FileMetadata metadata = {"", 0, getCurrentDate(), getCurrentDate()};
         files[filename] = metadata;
-        simulateLatency();
         createdCount++;
     }
 
@@ -73,7 +66,18 @@ private:
         files[filename].content = data;
         files[filename].size = data.size();
         files[filename].lastModified = getCurrentDate();
-        simulateLatency();
+    }
+
+    // File reading helper
+    void readFile(const string &filename)
+    {
+        unique_lock<mutex> lock(fsMutex);
+        if (files.find(filename) == files.end())
+        {
+            cerr << "Error: " << filename << " does not exist" << endl;
+            return;
+        }
+        string content = files[filename].content; // Just accessing the content to simulate a read
     }
 
     // File deletion helper
@@ -82,7 +86,6 @@ private:
         unique_lock<mutex> lock(fsMutex);
         if (files.erase(filename) == 0)
             cerr << "Error: " << filename << " doesn’t exist" << endl;
-        simulateLatency();
     }
 
 public:
@@ -101,6 +104,15 @@ public:
         vector<thread> threads;
         for (const auto &[filename, data] : fileData)
             threads.push_back(thread(&MemFS::writeFile, this, filename, data));
+        for (auto &t : threads)
+            t.join();
+    }
+
+    void readFromFile(int numFiles, const vector<string> &filenames)
+    {
+        vector<thread> threads;
+        for (const auto &filename : filenames)
+            threads.push_back(thread(&MemFS::readFile, this, filename));
         for (auto &t : threads)
             t.join();
     }
@@ -172,6 +184,22 @@ public:
                 t.join();
             threads.clear();
 
+            // Reading files in the current batch
+            for (int i = 0; i < numThreads; ++i)
+            {
+                int startIdx = batchStart + i * (currentBatchSize / numThreads);
+                int endIdx = min(startIdx + (currentBatchSize / numThreads), batchStart + currentBatchSize);
+
+                if (startIdx < endIdx)
+                {
+                    threads.push_back(thread(&MemFS::readFromFile, &fs, endIdx - startIdx,
+                                             vector<string>(filenames.begin() + startIdx, filenames.begin() + endIdx)));
+                }
+            }
+            for (auto &t : threads)
+                t.join();
+            threads.clear();
+
             // Deleting files in the current batch
             for (int i = 0; i < numThreads; ++i)
             {
@@ -189,13 +217,13 @@ public:
         }
 
         auto end = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::microseconds>(end - start).count();
+        auto duration = chrono::duration_cast<chrono::milliseconds>(end - start).count(); // in milliseconds
         double avgLatency = duration / static_cast<double>(numFiles);
 
         struct rusage usage;
         getrusage(RUSAGE_SELF, &usage);
         cout << "Number of Threads: " << numThreads << endl;
-        cout << "Average Latency: " << avgLatency << " microseconds" << endl;
+        cout << "Average Latency: " << avgLatency << " milliseconds" << endl;
         cout << "CPU Usage: " << usage.ru_utime.tv_sec + usage.ru_utime.tv_usec / 1e6 << " seconds" << endl;
         cout << "Memory Usage: " << usage.ru_maxrss << " KB" << endl;
     }
@@ -203,14 +231,12 @@ public:
 
 int main()
 {
-#ifndef ONLINE_JUDGE
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-#endif
     MemFS fs;
     MemFSBenchmark benchmark;
 
     cout << "Benchmarking MemFS:" << endl;
+
+    // Run benchmarks for different numbers of threads and file counts
     for (int threads : {1, 2, 4, 8, 16})
     {
         cout << "Benchmark with 100 files, " << threads << " threads" << endl;

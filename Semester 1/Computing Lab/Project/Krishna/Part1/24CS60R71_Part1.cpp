@@ -12,22 +12,22 @@
 using namespace std;
 
 // Structure to hold file metadata
+// File content, size, creation date and last modified date
 struct FileMetadata
 {
-    string content;      // File content
-    size_t size;         // File size
-    string creationDate; // File creation date
-    string lastModified; // File last modified date
+    string content;
+    size_t size;
+    string creationDate;
+    string lastModified;
 };
 
 class MemFS
 {
-private:
     unordered_map<string, FileMetadata> files;
     mutex fsMutex;               // Mutex to ensure thread safety for shared resources
     atomic<int> createdCount{0}; // Atomic counter for successful file creations
 
-    // Helper function to format current date
+    //  This function returns the current date in the format "dd/mm/yyyy".
     string getCurrentDate() const
     {
         time_t now = time(0);
@@ -37,12 +37,6 @@ private:
              << setw(2) << setfill('0') << (ltm->tm_mon + 1) << "/"
              << (1900 + ltm->tm_year);
         return date.str();
-    }
-
-    // Helper function to simulate file operation delay for latency testing
-    void simulateLatency() const
-    {
-        this_thread::sleep_for(chrono::milliseconds(10)); // Simulating a small delay
     }
 
     // Helper function to safely create a file (to be used in threads)
@@ -65,16 +59,15 @@ private:
         metadata.lastModified = metadata.creationDate;
 
         files[filename] = metadata;
-        simulateLatency(); // Simulate file operation delay
 
         // Increment counter for successful file creation
-        this->createdCount++; // Access the atomic createdCount using this-> pointer
+        this->createdCount++;
     }
 
     // Helper function to safely write to a file (to be used in threads)
     void writeFile(const string &filename, const string &data)
     {
-        unique_lock<mutex> lock(fsMutex); // Ensure thread safety when modifying shared resources
+        unique_lock<mutex> lock(fsMutex);
         if (files.find(filename) == files.end())
         {
             cerr << "Error: " << filename << " does not exist" << endl;
@@ -84,26 +77,26 @@ private:
         files[filename].content = data;
         files[filename].size = data.size();
         files[filename].lastModified = getCurrentDate();
-        simulateLatency(); // Simulate file operation delay
     }
 
     // Helper function to safely delete a file (to be used in threads)
     void deleteFile(const string &filename)
     {
-        unique_lock<mutex> lock(fsMutex); // Ensure thread safety when modifying shared resources
+        unique_lock<mutex> lock(fsMutex);
         auto it = files.find(filename);
-        if (it == files.end()) // If file doesn't exist
+        if (it == files.end())
         {
             cerr << "Error: " << filename << " doesn’t exist" << endl;
             return;
         }
 
-        files.erase(it);                             // Delete the file if it exists
-        simulateLatency();                           // Simulate file operation delay
-        cout << "File deleted successfully" << endl; // Only print success message if file was deleted
+        files.erase(it);
+        cout << "File deleted successfully" << endl;
     }
 
 public:
+    // This function returns a single string that is created by concatenating all the strings
+    // in the input vector `vec`, separated by the specified `delimiter`.
     string join(const vector<string> &vec, const string &delimiter)
     {
         stringstream ss;
@@ -123,7 +116,6 @@ public:
         for (const auto &filename : filenames)
             threads.push_back(thread(&MemFS::createFile, this, filename));
 
-        // Wait for all threads to complete
         for (auto &t : threads)
             t.join();
 
@@ -137,7 +129,7 @@ public:
         }
 
         // Reset the atomic counter for next command
-        this->createdCount.store(0); // Use this-> to refer to the atomic variable
+        this->createdCount.store(0);
     }
 
     void writeToFile(int numFiles, const vector<pair<string, string>> &fileData)
@@ -145,12 +137,10 @@ public:
         vector<thread> threads;
 
         for (const auto &[filename, data] : fileData)
-        {
             threads.push_back(thread(&MemFS::writeFile, this, filename, data));
-        }
 
         for (auto &t : threads)
-            t.join(); // Wait for all threads to complete
+            t.join();
 
         if (numFiles == 1)
             cout << "successfully written to " << fileData[0].first << endl;
@@ -171,8 +161,9 @@ public:
                                      {
             unique_lock<mutex> lock(fsMutex);
             auto it = files.find(filename);
+            // Delete the file if it exists
             if (it != files.end()) {
-                files.erase(it);   // Delete the file if it exists
+                files.erase(it);
                 deletedFiles.push_back(filename);  // Add to deleted files list
             }
             else {
@@ -181,9 +172,8 @@ public:
         }
 
         for (auto &t : threads)
-            t.join(); // Wait for all threads to complete
+            t.join();
 
-        // Handle the output message
         if (nonExistentFiles.empty() && !deletedFiles.empty())
         {
             if (numFiles == 1)
@@ -203,16 +193,7 @@ public:
         }
     }
 
-    void checkFileExists(const string &filename) const
-    {
-        if (files.find(filename) != files.end())
-            cout << "file exists: " << filename << endl;
-        else
-            cout << "file does not exist: " << filename << endl;
-    }
-
-    void
-    readFile(const string &filename) const
+    void readFile(const string &filename) const
     {
         auto it = files.find(filename);
         if (it != files.end())
@@ -225,24 +206,20 @@ public:
     {
         if (detailed)
         {
-            // Print file details (size, creation date, last modified date, filename)
             cout << "size created last modified filename" << endl;
             for (const auto &[filename, metadata] : files)
                 cout << metadata.size << " " << metadata.creationDate << " " << metadata.lastModified << " " << filename << endl;
         }
         else
-        {
-            // Just print filenames
             for (const auto &[filename, _] : files)
                 cout << filename << endl;
-        }
     }
 
     void executeCommand(const string &command)
     {
         istringstream iss(command);
         string token;
-        iss >> token; // Extract the command type
+        iss >> token;
 
         if (token == "create")
         {
@@ -264,13 +241,6 @@ public:
             }
 
             createFiles(numFiles, filenames);
-        }
-        else if (token == "exists")
-        {
-            if (iss >> token)
-                checkFileExists(token);
-            else
-                cerr << "error: no filename provided for exists command" << endl;
         }
         else if (token == "write")
         {
