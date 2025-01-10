@@ -1,0 +1,101 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> sentence
+Rule 1     sentence -> WORDS VERBS sentence
+Rule 2     sentence -> sen1
+Rule 3     sen1 -> WORDS sen1
+Rule 4     sen1 -> WORDS
+
+Terminals, with rules where they appear
+
+VERBS                : 1
+WORDS                : 1 3 4
+error                : 
+
+Nonterminals, with rules where they appear
+
+sen1                 : 2 3
+sentence             : 1 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . sentence
+    (1) sentence -> . WORDS VERBS sentence
+    (2) sentence -> . sen1
+    (3) sen1 -> . WORDS sen1
+    (4) sen1 -> . WORDS
+
+    WORDS           shift and go to state 2
+
+    sentence                       shift and go to state 1
+    sen1                           shift and go to state 3
+
+state 1
+
+    (0) S' -> sentence .
+
+
+
+state 2
+
+    (1) sentence -> WORDS . VERBS sentence
+    (3) sen1 -> WORDS . sen1
+    (4) sen1 -> WORDS .
+    (3) sen1 -> . WORDS sen1
+    (4) sen1 -> . WORDS
+
+    VERBS           shift and go to state 5
+    $end            reduce using rule 4 (sen1 -> WORDS .)
+    WORDS           shift and go to state 4
+
+    sen1                           shift and go to state 6
+
+state 3
+
+    (2) sentence -> sen1 .
+
+    $end            reduce using rule 2 (sentence -> sen1 .)
+
+
+state 4
+
+    (3) sen1 -> WORDS . sen1
+    (4) sen1 -> WORDS .
+    (3) sen1 -> . WORDS sen1
+    (4) sen1 -> . WORDS
+
+    $end            reduce using rule 4 (sen1 -> WORDS .)
+    WORDS           shift and go to state 4
+
+    sen1                           shift and go to state 6
+
+state 5
+
+    (1) sentence -> WORDS VERBS . sentence
+    (1) sentence -> . WORDS VERBS sentence
+    (2) sentence -> . sen1
+    (3) sen1 -> . WORDS sen1
+    (4) sen1 -> . WORDS
+
+    WORDS           shift and go to state 2
+
+    sentence                       shift and go to state 7
+    sen1                           shift and go to state 3
+
+state 6
+
+    (3) sen1 -> WORDS sen1 .
+
+    $end            reduce using rule 3 (sen1 -> WORDS sen1 .)
+
+
+state 7
+
+    (1) sentence -> WORDS VERBS sentence .
+
+    $end            reduce using rule 1 (sentence -> WORDS VERBS sentence .)
+
