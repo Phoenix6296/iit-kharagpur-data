@@ -3,11 +3,14 @@ import ply.yacc as yacc
 
 # Lexer
 tokens = [
-    'LABEL', 'DOLLAR', 'OPCODE', 'REG', 'NUMBER', 'STRING', 'COMMA'
+    'LABEL', 'DOLLAR', 'OPCODE', 'REG', 'NUMBER', 'STRING', 'COMMA', 'COMPARISON', 'IF', 'GOTO'
 ]
 
 t_DOLLAR = r'\$\$\$'
 t_OPCODE = r'STOR|PRINT|HLT|SUM'  # Add any additional opcodes here
+t_IF = r'IF'
+t_GOTO = r'GOTO'
+t_COMPARISON = r'==|!=|<|>|<=|>='
 t_REG = r'[A-Za-z]'
 t_COMMA = r','
 t_ignore = ' \t'
@@ -47,8 +50,19 @@ def p_instructions(p):
     p[0] = p[1] + [p[2]] if len(p) == 3 else [p[1]]
 
 def p_instruction(p):
-    '''instruction : LABEL DOLLAR OPCODE operands'''
+    '''instruction : LABEL DOLLAR OPCODE operands
+    | LABEL DOLLAR GOTO LABEL
+    | condition'''
     p[0] = {'label': p[1], 'opcode': p[3], 'operands': p[4]}
+
+def p_condition(p):
+    '''condition : LABEL DOLLAR IF comparison OPCODE operands
+    | LABEL DOLLAR IF comparison GOTO LABEL'''
+    p[0] = {'label': p[1], 'opcode': p[5], 'operands': p[6], 'comparison': p[4]}
+
+def p_comparison(p):
+    '''comparison : operand COMPARISON operand'''
+    p[0] = (p[1], p[2], p[3])
 
 def p_operands(p):
     '''operands : operand COMMA operands
@@ -74,7 +88,10 @@ class VirtualMachine:
         self.registers = {}
 
     def execute(self, instructions):
-        for inst in instructions:
+        size = len(instructions)
+        i = 0
+        while i < size:
+            inst = instructions[i]
             opcode = inst['opcode']
             operands = inst['operands']
 
@@ -84,11 +101,46 @@ class VirtualMachine:
                 self.summation(operands)
             elif opcode == 'PRINT':
                 self.print_register(operands)
+            elif opcode == 'IF':
+                a, sign, b = inst['comparison']
+                if sign == '==':
+                    if a == b:
+                        i = self.goto(inst['label'])
+                elif sign == '!=':
+                    if a != b:
+                        i = self.goto(inst['label'])
+                elif sign == '<':
+                    if a < b:
+                        i = self.goto(inst['label'])
+                elif sign == '>':
+                    if a > b:
+                        i = self.goto(inst['label'])
+                elif sign == '<=':
+                    if a <= b:
+                        i = self.goto(inst['label'])
+                elif sign == '>=':
+                    if a >= b:
+                        i = self.goto(inst['label'])
+                else:
+                    print(f"Unknown comparison operator: {sign}")
+                
+            elif opcode == 'GOTO':
+                i = self.goto(inst['operands'][0])
             elif opcode == 'HLT':
                 print("Halting execution.")
                 break
             else:
                 print(f"Unknown opcode: {opcode}")
+
+            i += 1
+
+    def goto(self, label):
+        #return the position of the label
+        for i in range(len(instructions)):
+            if instructions[i]['label'] == label:
+                print(f"Jumping to label {label}")
+                return i
+        print(f"Error: Label {label} not found.")
 
     def stor(self, operands):
         reg = operands[0]
@@ -111,6 +163,7 @@ class VirtualMachine:
             print(f"Value in register {reg}: {self.registers[reg]}")
         else:
             print(f"Error: Register {reg} not initialized.")
+        
 
 # Parse the program
 program = """
@@ -120,6 +173,13 @@ L2 $$$ STOR b, 2
 L3 $$$ STOR @b, 35
 L4 $$$ SUM a, 5
 L5 $$$ PRINT a
+L6 $$$ IF a <= 100 GOTO L4
+L7 $$$ PRINT "Done"
+L8 $$$ GOTO L10
+L9 $$$ PRINT "Unreachable"
+L10 $$$ PRINT "End"
+L11 $$$ HLT
+
 """
 
 instructions = parser.parse(program)
