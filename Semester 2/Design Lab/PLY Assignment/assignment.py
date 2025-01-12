@@ -7,16 +7,31 @@ tokens = [
 ]
 
 t_DOLLAR = r'\$\$\$'
-t_OPCODE = r'STOR|PRINT|HLT|SUM'  # Add any additional opcodes here
-t_IF = r'IF'
-t_GOTO = r'GOTO'
-t_COMPARISON = r'==|!=|<|>|<=|>='
-t_REG = r'[A-Za-z]'
+# t_OPCODE = r'STOR|PRINT|HLT|SUM'  # Add any additional opcodes here
+# t_IF = r'IF'
+# t_GOTO = r'GOTO'
+t_COMPARISON = r'==|!=|<=|>=|<|>'  # Comparison operators
 t_COMMA = r','
 t_ignore = ' \t'
 
+def t_OPCODE(t):
+    r'STOR|PRINT|HLT|SUM'  # Add any additional opcodes here
+    return t
+
+def t_GOTO(t):
+    r'GOTO'
+    return t
+
+def t_IF(t):
+    r'IF'
+    return t
+
 def t_LABEL(t):
     r'L\d+'
+    return t
+
+def t_REG(t):
+    r'@?[A-Za-z]'  # Allow registers to optionally start with '@'
     return t
 
 def t_STRING(t):
@@ -37,7 +52,6 @@ def t_error(t):
     print(f"Illegal character {t.value[0]} at line {t.lexer.lineno}")
     t.lexer.skip(1)
 
-lexer = lex.lex()
 
 # Parser
 def p_program(p):
@@ -51,14 +65,26 @@ def p_instructions(p):
 
 def p_instruction(p):
     '''instruction : LABEL DOLLAR OPCODE operands
-    | LABEL DOLLAR GOTO LABEL
-    | condition'''
-    p[0] = {'label': p[1], 'opcode': p[3], 'operands': p[4]}
+                   | LABEL DOLLAR GOTO LABEL
+                   | condition'''
+    if len(p) == 5:  # GOTO instruction
+        p[0] = {'label': p[1], 'opcode': p[3], 'operands': [p[4]]}
+    elif len(p) == 4:  # OPCODE with operands
+        p[0] = {'label': p[1], 'opcode': p[3], 'operands': p[4]}
+    else:  # Condition
+        p[0] = p[1]
 
 def p_condition(p):
-    '''condition : LABEL DOLLAR IF comparison OPCODE operands
-    | LABEL DOLLAR IF comparison GOTO LABEL'''
-    p[0] = {'label': p[1], 'opcode': p[5], 'operands': p[6], 'comparison': p[4]}
+    '''condition : LABEL DOLLAR IF comparison GOTO LABEL
+                 | LABEL DOLLAR IF comparison OPCODE operands'''
+    p[0] = {
+        'opcode': p[3],
+        'comparison': p[4],
+        'operation' :{
+            'opcode': p[5], 'operands': p[6]
+        }
+    }
+    
 
 def p_comparison(p):
     '''comparison : operand COMPARISON operand'''
@@ -83,68 +109,98 @@ def p_error(p):
 
 parser = yacc.yacc()
 
+# Virtual Machine
 class VirtualMachine:
     def __init__(self):
         self.registers = {}
+
+    def resolve_value(self, operand):
+        if isinstance(operand, str) and operand in self.registers:
+            return self.registers[operand]
+        return operand
+
+    def run_instruction(self, inst, instructions):
+        opcode = inst['opcode']
+        operands = inst.get('operands', [])
+
+        if opcode == 'STOR':
+            self.stor(operands)
+        elif opcode == 'SUM':
+            self.summation(operands)
+        elif opcode == 'PRINT':
+            self.print_register(operands)
+        elif opcode == 'IF':
+            a, op, b = inst['comparison']
+            a = self.resolve_value(a)
+            b = self.resolve_value(b)
+            if self.compare(a, op, b):
+                return run_instruction(self, inst['operation'], instructions)
+        elif opcode == 'GOTO':
+            return self.goto(operands[0])
+        elif opcode == 'HLT':
+            print("Halting execution.")
+            return -1
+        else:
+            print(f"Unknown opcode: {opcode}")
+
+        return instructions.index(inst) + 1
 
     def execute(self, instructions):
         size = len(instructions)
         i = 0
         while i < size:
-            inst = instructions[i]
-            opcode = inst['opcode']
-            operands = inst['operands']
-
-            if opcode == 'STOR':
-                self.stor(operands)
-            elif opcode == 'SUM':
-                self.summation(operands)
-            elif opcode == 'PRINT':
-                self.print_register(operands)
-            elif opcode == 'IF':
-                a, sign, b = inst['comparison']
-                if sign == '==':
-                    if a == b:
-                        i = self.goto(inst['label'])
-                elif sign == '!=':
-                    if a != b:
-                        i = self.goto(inst['label'])
-                elif sign == '<':
-                    if a < b:
-                        i = self.goto(inst['label'])
-                elif sign == '>':
-                    if a > b:
-                        i = self.goto(inst['label'])
-                elif sign == '<=':
-                    if a <= b:
-                        i = self.goto(inst['label'])
-                elif sign == '>=':
-                    if a >= b:
-                        i = self.goto(inst['label'])
-                else:
-                    print(f"Unknown comparison operator: {sign}")
-                
-            elif opcode == 'GOTO':
-                i = self.goto(inst['operands'][0])
-            elif opcode == 'HLT':
-                print("Halting execution.")
+            i = self.run_instruction(instructions[i], instructions)
+            if i == -1:
                 break
-            else:
-                print(f"Unknown opcode: {opcode}")
+
+        # while i < size:
+        #     inst = instructions[i]
+        #     opcode = inst['opcode']
+        #     operands = inst.get('operands', [])
+
+        #     if opcode == 'STOR':
+        #         self.stor(operands)
+        #     elif opcode == 'SUM':
+        #         self.summation(operands)
+        #     elif opcode == 'PRINT':
+        #         self.print_register(operands)
+        #     elif opcode == 'IF':
+        #         a, op, b = inst['comparison']
+        #         a = self.resolve_value(a)
+        #         b = self.resolve_value(b)
+        #         if self.compare(a, op, b):
+        #             i = self.goto(inst['operands'][0]) - 1  # Adjust for i += 1
+        #     elif opcode == 'GOTO':
+        #         i = self.goto(operands[0]) - 1  # Adjust for i += 1
+        #     elif opcode == 'HLT':
+        #         print("Halting execution.")
+        #         break
+        #     else:
+        #         print(f"Unknown opcode: {opcode}")
 
             i += 1
 
+    def compare(self, a, op, b):
+        return {
+            '==': a == b,
+            '!=': a != b,
+            '<': a < b,
+            '>': a > b,
+            '<=': a <= b,
+            '>=': a >= b,
+        }.get(op, False)
+
     def goto(self, label):
-        #return the position of the label
-        for i in range(len(instructions)):
-            if instructions[i]['label'] == label:
+        for idx, inst in enumerate(instructions):
+            if inst.get('label') == label:
                 print(f"Jumping to label {label}")
-                return i
+                return idx
         print(f"Error: Label {label} not found.")
+        return len(instructions)  # Fall to the end if label not found
 
     def stor(self, operands):
         reg = operands[0]
-        value = operands[1]
+        value = self.resolve_value(operands[1])
         self.registers[reg] = value
         print(f"Stored {value} in register {reg}")
 
@@ -153,7 +209,7 @@ class VirtualMachine:
         if reg not in self.registers:
             print(f"Error: Register {reg} not initialized.")
             return
-        value = operands[1]
+        value = self.resolve_value(operands[1])
         self.registers[reg] += value
         print(f"Added {value} to register {reg}, new value: {self.registers[reg]}")
 
@@ -163,9 +219,8 @@ class VirtualMachine:
             print(f"Value in register {reg}: {self.registers[reg]}")
         else:
             print(f"Error: Register {reg} not initialized.")
-        
 
-# Parse the program
+# Program
 program = """
 L0 $$$ STOR A, "Study the examples"
 L1 $$$ STOR a, 10
@@ -179,10 +234,20 @@ L8 $$$ GOTO L10
 L9 $$$ PRINT "Unreachable"
 L10 $$$ PRINT "End"
 L11 $$$ HLT
-
 """
 
+lexer = lex.lex()
+#token`ize the program
+lexer.input(program)
+print("\nTokenized Program:")
+while True:
+    tok = lexer.token()
+    if not tok:
+        break
+    print(tok)
+
 instructions = parser.parse(program)
+print(instructions)
 
 if instructions:
     print("\nParsed Instructions:")
