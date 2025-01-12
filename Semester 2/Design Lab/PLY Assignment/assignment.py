@@ -7,15 +7,12 @@ tokens = [
 ]
 
 t_DOLLAR = r'\$\$\$'
-# t_OPCODE = r'STOR|PRINT|HLT|SUM'  # Add any additional opcodes here
-# t_IF = r'IF'
-# t_GOTO = r'GOTO'
-t_COMPARISON = r'==|!=|<=|>=|<|>'  # Comparison operators
+t_COMPARISON = r'==|!=|<=|>=|<|>'
 t_COMMA = r','
 t_ignore = ' \t'
 
 def t_OPCODE(t):
-    r'STOR|PRINT|HLT|SUM'  # Add any additional opcodes here
+    r'STOR|PRINT|HLT|SUM'
     return t
 
 def t_GOTO(t):
@@ -31,12 +28,12 @@ def t_LABEL(t):
     return t
 
 def t_REG(t):
-    r'@?[A-Za-z]'  # Allow registers to optionally start with '@'
+    r'@?[A-Za-z]'
     return t
 
 def t_STRING(t):
     r'"[^"]*"'
-    t.value = t.value.strip('"')  # Remove quotes
+    t.value = t.value.strip('"')
     return t
 
 def t_NUMBER(t):
@@ -52,19 +49,12 @@ def t_error(t):
     print(f"Illegal character {t.value[0]} at line {t.lexer.lineno}")
     t.lexer.skip(1)
 
-
-# Parser
-# def p_program(p):
-#     '''program : instructions'''
-#     p[0] = p[1]
-
 instruction = []
 
 def p_instructions(p):
     '''instructions : instructions instruction
                     | instruction'''
     if len(p) == 3:
-        print('hi')
         p[0] = p[1] + [p[2]]
         instruction.append(p[2])
     else:
@@ -75,11 +65,11 @@ def p_instruction(p):
     '''instruction : LABEL DOLLAR OPCODE operands
                    | LABEL DOLLAR GOTO LABEL
                    | condition'''
-    if len(p) == 5:  # GOTO instruction
+    if len(p) == 5:
         p[0] = {'label': p[1], 'opcode': p[3], 'operands': p[4]}
-    elif len(p) == 4:  # OPCODE with operands
+    elif len(p) == 4:
         p[0] = {'label': p[1], 'opcode': p[3], 'operands': p[4]}
-    else:  # Condition
+    else:
         p[0] = p[1]
 
 def p_condition(p):
@@ -89,11 +79,10 @@ def p_condition(p):
         'label': p[1],
         'opcode': p[3],
         'comparison': p[4],
-        'operation' :{
+        'operation': {
             'opcode': p[5], 'operands': p[6]
         }
     }
-    
 
 def p_comparison(p):
     '''comparison : operand COMPARISON operand'''
@@ -118,7 +107,6 @@ def p_error(p):
 
 parser = yacc.yacc()
 
-# Virtual Machine
 class VirtualMachine:
     def __init__(self):
         self.registers = {}
@@ -150,8 +138,7 @@ class VirtualMachine:
             return -1
         else:
             print(f"Unknown opcode: {opcode}")
-
-        return instructions.index(inst) 
+        return instructions.index(inst)
 
     def execute(self, instructions):
         size = len(instructions)
@@ -160,39 +147,11 @@ class VirtualMachine:
             i = self.run_instruction(instructions[i], instructions)
             if i == -1:
                 break
-
-        # while i < size:
-        #     inst = instructions[i]
-        #     opcode = inst['opcode']
-        #     operands = inst.get('operands', [])
-
-        #     if opcode == 'STOR':
-        #         self.stor(operands)
-        #     elif opcode == 'SUM':
-        #         self.summation(operands)
-        #     elif opcode == 'PRINT':
-        #         self.print_register(operands)
-        #     elif opcode == 'IF':
-        #         a, op, b = inst['comparison']
-        #         a = self.resolve_value(a)
-        #         b = self.resolve_value(b)
-        #         if self.compare(a, op, b):
-        #             i = self.goto(inst['operands'][0]) - 1  # Adjust for i += 1
-        #     elif opcode == 'GOTO':
-        #         i = self.goto(operands[0]) - 1  # Adjust for i += 1
-        #     elif opcode == 'HLT':
-        #         print("Halting execution.")
-        #         break
-        #     else:
-        #         print(f"Unknown opcode: {opcode}")
-
             i += 1
 
     def compare(self, a, op, b):
         a = self.registers[a] if a in self.registers else a
         b = self.registers[b] if b in self.registers else b
-        print(self.registers)
-        print(a, b)
         return {
             '==': a == b,
             '!=': a != b,
@@ -203,15 +162,12 @@ class VirtualMachine:
         }.get(op, False)
 
     def goto(self, label, instructions):
-        # print(instructions)
         for idx, inst in enumerate(instructions):
-            print(inst , label)
             if inst['label'] == label:
                 print(f"Jumping to label {label}")
                 return idx - 1
-
         print(f"Error: Label {label} not found.")
-        return len(instructions)  # Fall to the end if label not found
+        return len(instructions)
 
     def stor(self, operands):
         reg = operands[0]
@@ -235,7 +191,6 @@ class VirtualMachine:
         else:
             print(f"Error: Register {reg} not initialized.")
 
-# Program
 program = """
 L0 $$$ STOR A, "Study the examples"
 L1 $$$ STOR a, 10
@@ -253,26 +208,15 @@ L11 $$$ HLT
 """
 
 lexer = lex.lex()
-#token`ize the program
 lexer.input(program)
-print("\nTokenized Program:")
-while True:
-    tok = lexer.token()
-    if not tok:
-        break
-    print(tok)
 
 parser.parse(program)
-# print(instruction)
-for i in instruction:
-    print(i)
 
 if instruction:
     print("\nParsed Instructions:")
     for inst in instruction:
         print(inst)
 
-    # Execute the parsed instructions
     vm = VirtualMachine()
     print("\nExecuting Program:")
     vm.execute(instruction)
