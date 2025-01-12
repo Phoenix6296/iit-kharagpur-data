@@ -185,11 +185,14 @@ class VirtualMachine:
         print(f"Added {value} to register {reg}, new value: {self.registers[reg]}")
 
     def print_register(self, operands):
-        reg = operands[0]
-        if reg in self.registers:
-            print(f"Value in register {reg}: {self.registers[reg]}")
+        operand = operands[0]
+        if isinstance(operand, str) and operand in self.registers:
+            print(f"Value in register {operand}: {self.registers[operand]}")
+        elif isinstance(operand, str):
+            print(operand)  # Print the string directly
         else:
-            print(f"Error: Register {reg} not initialized.")
+            print(f"Error: Operand {operand} is not valid.")
+
 
 program = """
 L0 $$$ STOR A, "Study the examples"
