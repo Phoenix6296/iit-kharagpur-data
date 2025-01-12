@@ -54,21 +54,29 @@ def t_error(t):
 
 
 # Parser
-def p_program(p):
-    '''program : instructions'''
-    p[0] = p[1]
+# def p_program(p):
+#     '''program : instructions'''
+#     p[0] = p[1]
+
+instruction = []
 
 def p_instructions(p):
     '''instructions : instructions instruction
                     | instruction'''
-    p[0] = p[1] + [p[2]] if len(p) == 3 else [p[1]]
+    if len(p) == 3:
+        print('hi')
+        p[0] = p[1] + [p[2]]
+        instruction.append(p[2])
+    else:
+        p[0] = [p[1]]
+        instruction.append(p[1])
 
 def p_instruction(p):
     '''instruction : LABEL DOLLAR OPCODE operands
                    | LABEL DOLLAR GOTO LABEL
                    | condition'''
     if len(p) == 5:  # GOTO instruction
-        p[0] = {'label': p[1], 'opcode': p[3], 'operands': [p[4]]}
+        p[0] = {'label': p[1], 'opcode': p[3], 'operands': p[4]}
     elif len(p) == 4:  # OPCODE with operands
         p[0] = {'label': p[1], 'opcode': p[3], 'operands': p[4]}
     else:  # Condition
@@ -78,6 +86,7 @@ def p_condition(p):
     '''condition : LABEL DOLLAR IF comparison GOTO LABEL
                  | LABEL DOLLAR IF comparison OPCODE operands'''
     p[0] = {
+        'label': p[1],
         'opcode': p[3],
         'comparison': p[4],
         'operation' :{
@@ -122,7 +131,6 @@ class VirtualMachine:
     def run_instruction(self, inst, instructions):
         opcode = inst['opcode']
         operands = inst.get('operands', [])
-
         if opcode == 'STOR':
             self.stor(operands)
         elif opcode == 'SUM':
@@ -134,16 +142,16 @@ class VirtualMachine:
             a = self.resolve_value(a)
             b = self.resolve_value(b)
             if self.compare(a, op, b):
-                return run_instruction(self, inst['operation'], instructions)
+                return self.run_instruction(inst['operation'], instructions)
         elif opcode == 'GOTO':
-            return self.goto(operands[0])
+            return self.goto(operands, instructions)
         elif opcode == 'HLT':
             print("Halting execution.")
             return -1
         else:
             print(f"Unknown opcode: {opcode}")
 
-        return instructions.index(inst) + 1
+        return instructions.index(inst) 
 
     def execute(self, instructions):
         size = len(instructions)
@@ -181,6 +189,10 @@ class VirtualMachine:
             i += 1
 
     def compare(self, a, op, b):
+        a = self.registers[a] if a in self.registers else a
+        b = self.registers[b] if b in self.registers else b
+        print(self.registers)
+        print(a, b)
         return {
             '==': a == b,
             '!=': a != b,
@@ -190,11 +202,14 @@ class VirtualMachine:
             '>=': a >= b,
         }.get(op, False)
 
-    def goto(self, label):
+    def goto(self, label, instructions):
+        # print(instructions)
         for idx, inst in enumerate(instructions):
-            if inst.get('label') == label:
+            print(inst , label)
+            if inst['label'] == label:
                 print(f"Jumping to label {label}")
-                return idx
+                return idx - 1
+
         print(f"Error: Label {label} not found.")
         return len(instructions)  # Fall to the end if label not found
 
@@ -230,9 +245,10 @@ L4 $$$ SUM a, 5
 L5 $$$ PRINT a
 L6 $$$ IF a <= 100 GOTO L4
 L7 $$$ PRINT "Done"
-L8 $$$ GOTO L10
+L8 $$$ GOTO L12
 L9 $$$ PRINT "Unreachable"
-L10 $$$ PRINT "End"
+L12 $$$ STOR C, "End"
+L10 $$$ PRINT C
 L11 $$$ HLT
 """
 
@@ -246,17 +262,19 @@ while True:
         break
     print(tok)
 
-instructions = parser.parse(program)
-print(instructions)
+parser.parse(program)
+# print(instruction)
+for i in instruction:
+    print(i)
 
-if instructions:
+if instruction:
     print("\nParsed Instructions:")
-    for inst in instructions:
+    for inst in instruction:
         print(inst)
 
     # Execute the parsed instructions
     vm = VirtualMachine()
     print("\nExecuting Program:")
-    vm.execute(instructions)
+    vm.execute(instruction)
 else:
     print("No instructions to execute.")
