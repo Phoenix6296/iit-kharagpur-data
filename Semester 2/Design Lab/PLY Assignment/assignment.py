@@ -189,7 +189,7 @@ class VirtualMachine:
         if isinstance(operand, str) and operand in self.registers:
             print(f"Value in register {operand}: {self.registers[operand]}")
         elif isinstance(operand, str):
-            print(operand)  # Print the string directly
+            print(operand)
         else:
             print(f"Error: Operand {operand} is not valid.")
 
