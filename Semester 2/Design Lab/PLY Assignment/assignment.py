@@ -12,7 +12,7 @@ t_COMMA = r','
 t_ignore = ' \t'
 
 def t_OPCODE(t):
-    r'STOR|PRINT|HLT|SUM|MUL|DIV|MOD|AND|OR|XOR|NOT|SHL|SHR'
+    r'STOR|PRINT|HLT|SUM|MUL|DIV|MOD|AND|OR|XOR|NOT|SHL|SHR|CONCAT|LENGTH|SUBSTR'
     return t
 
 def t_GOTO(t):
@@ -49,6 +49,7 @@ def t_error(t):
     print(f"Illegal character {t.value[0]} at line {t.lexer.lineno}")
     t.lexer.skip(1)
 
+# Parser
 instruction = []
 
 def p_instructions(p):
@@ -107,6 +108,7 @@ def p_error(p):
 
 parser = yacc.yacc()
 
+# Virtual Machine
 class VirtualMachine:
     def __init__(self):
         self.registers = {}
@@ -144,6 +146,12 @@ class VirtualMachine:
             self.shift_command(operands, lambda a, b: a >> b)
         elif opcode == 'PRINT':
             self.print_register(operands)
+        elif opcode == 'CONCAT':
+            self.concat_command(operands)
+        elif opcode == 'LENGTH':
+            self.length_command(operands)
+        elif opcode == 'SUBSTR':
+            self.substr_command(operands)
         elif opcode == 'IF':
             a, op, b = inst['comparison']
             a = self.resolve_value(a)
@@ -206,7 +214,10 @@ class VirtualMachine:
             print(f"Error: Register {reg} not initialized.")
             return
         value = self.resolve_value(operands[1])
-        self.registers[reg] = operation(self.registers[reg], value)
+        
+        # Ensure operands are integers before performing bitwise operation
+        self.registers[reg] = operation(int(self.registers[reg]), int(value))
+
 
     def not_command(self, operands):
         reg = operands[0]
@@ -222,6 +233,29 @@ class VirtualMachine:
             return
         value = self.resolve_value(operands[1])
         self.registers[reg] = operation(self.registers[reg], value)
+
+    def concat_command(self, operands):
+        reg_a, reg_b = operands
+        if reg_a in self.registers and reg_b in self.registers:
+            self.registers[reg_a] += self.registers[reg_b]
+        else:
+            print(f"Error: Registers {reg_a} or {reg_b} not initialized.")
+
+    def length_command(self, operands):
+        reg_a, reg_b = operands
+        if reg_b in self.registers and isinstance(self.registers[reg_b], str):
+            self.registers[reg_a] = len(self.registers[reg_b])
+        else:
+            print(f"Error: Register {reg_b} not initialized or does not contain a string.")
+
+    def substr_command(self, operands):
+        reg_a, pos1, pos2 = operands
+        pos1 = self.resolve_value(pos1)
+        pos2 = self.resolve_value(pos2)
+        if reg_a in self.registers and isinstance(self.registers[reg_a], str):
+            self.registers[reg_a] = self.registers[reg_a][pos1:pos2]
+        else:
+            print(f"Error: Register {reg_a} not initialized or does not contain a string.")
 
     def print_register(self, operands):
         operand = operands[0]
@@ -240,7 +274,7 @@ class VirtualMachine:
                 print(statement)
 
 
-# Example program with logical operations
+# Example program with string operations
 program = """
 L0 $$$ STOR A, "Study the examples"
 L1 $$$ STOR a, 10
@@ -256,7 +290,6 @@ L10 $$$ STOR C, "End"
 L11 $$$ PRINT C
 L12 $$$ HLT
 """
-
 lexer = lex.lex()
 lexer.input(program)
 # for tok in lexer:
