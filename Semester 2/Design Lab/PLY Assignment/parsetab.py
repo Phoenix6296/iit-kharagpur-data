@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'VERBS WORDSsentence : WORDS VERBS sentence\n                | sen1sen1 : WORDS sen1\n            | WORDS'
+_lr_signature = 'COMMA COMPARISON DOLLAR GOTO IF LABEL NUMBER OPCODE REG STRINGinstructions : instructions instruction\n                    | instructioninstruction : LABEL DOLLAR OPCODE operands\n                   | LABEL DOLLAR GOTO LABEL\n                   | conditioncondition : LABEL DOLLAR IF comparison GOTO LABEL\n                 | LABEL DOLLAR IF comparison OPCODE operandscomparison : operand COMPARISON operandoperands : operand COMMA operands\n                | operandoperand : REG\n               | NUMBER\n               | STRING'
     
-_lr_action_items = {'WORDS':([0,2,4,5,],[2,4,4,2,]),'$end':([1,2,3,4,6,7,],[0,-4,-2,-4,-3,-1,]),'VERBS':([2,],[5,]),}
+_lr_action_items = {'LABEL':([0,1,2,4,5,8,10,11,12,13,14,15,19,22,23,24,],[3,3,-2,-5,-1,15,-3,-10,-11,-12,-13,-4,23,-9,-6,-7,]),'$end':([1,2,4,5,10,11,12,13,14,15,22,23,24,],[0,-2,-5,-1,-3,-10,-11,-12,-13,-4,-9,-6,-7,]),'DOLLAR':([3,],[6,]),'OPCODE':([6,12,13,14,16,25,],[7,-11,-12,-13,20,-8,]),'GOTO':([6,12,13,14,16,25,],[8,-11,-12,-13,19,-8,]),'IF':([6,],[9,]),'REG':([7,9,18,20,21,],[12,12,12,12,12,]),'NUMBER':([7,9,18,20,21,],[13,13,13,13,13,]),'STRING':([7,9,18,20,21,],[14,14,14,14,14,]),'COMMA':([11,12,13,14,],[18,-11,-12,-13,]),'COMPARISON':([12,13,14,17,],[-11,-12,-13,21,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'sentence':([0,5,],[1,7,]),'sen1':([0,2,4,5,],[3,6,6,3,]),}
+_lr_goto_items = {'instructions':([0,],[1,]),'instruction':([0,1,],[2,5,]),'condition':([0,1,],[4,4,]),'operands':([7,18,20,],[10,22,24,]),'operand':([7,9,18,20,21,],[11,17,11,11,25,]),'comparison':([9,],[16,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,9 +26,18 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> sentence","S'",1,None,None,None),
-  ('sentence -> WORDS VERBS sentence','sentence',3,'p_sentence','sentence.py',22),
-  ('sentence -> sen1','sentence',1,'p_sentence','sentence.py',23),
-  ('sen1 -> WORDS sen1','sen1',2,'p_sen1','sentence.py',30),
-  ('sen1 -> WORDS','sen1',1,'p_sen1','sentence.py',31),
+  ("S' -> instructions","S'",1,None,None,None),
+  ('instructions -> instructions instruction','instructions',2,'p_instructions','assignment.py',55),
+  ('instructions -> instruction','instructions',1,'p_instructions','assignment.py',56),
+  ('instruction -> LABEL DOLLAR OPCODE operands','instruction',4,'p_instruction','assignment.py',65),
+  ('instruction -> LABEL DOLLAR GOTO LABEL','instruction',4,'p_instruction','assignment.py',66),
+  ('instruction -> condition','instruction',1,'p_instruction','assignment.py',67),
+  ('condition -> LABEL DOLLAR IF comparison GOTO LABEL','condition',6,'p_condition','assignment.py',76),
+  ('condition -> LABEL DOLLAR IF comparison OPCODE operands','condition',6,'p_condition','assignment.py',77),
+  ('comparison -> operand COMPARISON operand','comparison',3,'p_comparison','assignment.py',88),
+  ('operands -> operand COMMA operands','operands',3,'p_operands','assignment.py',92),
+  ('operands -> operand','operands',1,'p_operands','assignment.py',93),
+  ('operand -> REG','operand',1,'p_operand','assignment.py',97),
+  ('operand -> NUMBER','operand',1,'p_operand','assignment.py',98),
+  ('operand -> STRING','operand',1,'p_operand','assignment.py',99),
 ]

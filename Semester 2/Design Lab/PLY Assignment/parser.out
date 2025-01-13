@@ -2,100 +2,321 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
 Grammar
 
-Rule 0     S' -> sentence
-Rule 1     sentence -> WORDS VERBS sentence
-Rule 2     sentence -> sen1
-Rule 3     sen1 -> WORDS sen1
-Rule 4     sen1 -> WORDS
+Rule 0     S' -> instructions
+Rule 1     instructions -> instructions instruction
+Rule 2     instructions -> instruction
+Rule 3     instruction -> LABEL DOLLAR OPCODE operands
+Rule 4     instruction -> LABEL DOLLAR GOTO LABEL
+Rule 5     instruction -> condition
+Rule 6     condition -> LABEL DOLLAR IF comparison GOTO LABEL
+Rule 7     condition -> LABEL DOLLAR IF comparison OPCODE operands
+Rule 8     comparison -> operand COMPARISON operand
+Rule 9     operands -> operand COMMA operands
+Rule 10    operands -> operand
+Rule 11    operand -> REG
+Rule 12    operand -> NUMBER
+Rule 13    operand -> STRING
 
 Terminals, with rules where they appear
 
-VERBS                : 1
-WORDS                : 1 3 4
+COMMA                : 9
+COMPARISON           : 8
+DOLLAR               : 3 4 6 7
+GOTO                 : 4 6
+IF                   : 6 7
+LABEL                : 3 4 4 6 6 7
+NUMBER               : 12
+OPCODE               : 3 7
+REG                  : 11
+STRING               : 13
 error                : 
 
 Nonterminals, with rules where they appear
 
-sen1                 : 2 3
-sentence             : 1 0
+comparison           : 6 7
+condition            : 5
+instruction          : 1 2
+instructions         : 1 0
+operand              : 8 8 9 10
+operands             : 3 7 9
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . sentence
-    (1) sentence -> . WORDS VERBS sentence
-    (2) sentence -> . sen1
-    (3) sen1 -> . WORDS sen1
-    (4) sen1 -> . WORDS
+    (0) S' -> . instructions
+    (1) instructions -> . instructions instruction
+    (2) instructions -> . instruction
+    (3) instruction -> . LABEL DOLLAR OPCODE operands
+    (4) instruction -> . LABEL DOLLAR GOTO LABEL
+    (5) instruction -> . condition
+    (6) condition -> . LABEL DOLLAR IF comparison GOTO LABEL
+    (7) condition -> . LABEL DOLLAR IF comparison OPCODE operands
 
-    WORDS           shift and go to state 2
+    LABEL           shift and go to state 3
 
-    sentence                       shift and go to state 1
-    sen1                           shift and go to state 3
+    instructions                   shift and go to state 1
+    instruction                    shift and go to state 2
+    condition                      shift and go to state 4
 
 state 1
 
-    (0) S' -> sentence .
+    (0) S' -> instructions .
+    (1) instructions -> instructions . instruction
+    (3) instruction -> . LABEL DOLLAR OPCODE operands
+    (4) instruction -> . LABEL DOLLAR GOTO LABEL
+    (5) instruction -> . condition
+    (6) condition -> . LABEL DOLLAR IF comparison GOTO LABEL
+    (7) condition -> . LABEL DOLLAR IF comparison OPCODE operands
 
+    LABEL           shift and go to state 3
 
+    instruction                    shift and go to state 5
+    condition                      shift and go to state 4
 
 state 2
 
-    (1) sentence -> WORDS . VERBS sentence
-    (3) sen1 -> WORDS . sen1
-    (4) sen1 -> WORDS .
-    (3) sen1 -> . WORDS sen1
-    (4) sen1 -> . WORDS
+    (2) instructions -> instruction .
 
-    VERBS           shift and go to state 5
-    $end            reduce using rule 4 (sen1 -> WORDS .)
-    WORDS           shift and go to state 4
+    LABEL           reduce using rule 2 (instructions -> instruction .)
+    $end            reduce using rule 2 (instructions -> instruction .)
 
-    sen1                           shift and go to state 6
 
 state 3
 
-    (2) sentence -> sen1 .
+    (3) instruction -> LABEL . DOLLAR OPCODE operands
+    (4) instruction -> LABEL . DOLLAR GOTO LABEL
+    (6) condition -> LABEL . DOLLAR IF comparison GOTO LABEL
+    (7) condition -> LABEL . DOLLAR IF comparison OPCODE operands
 
-    $end            reduce using rule 2 (sentence -> sen1 .)
+    DOLLAR          shift and go to state 6
 
 
 state 4
 
-    (3) sen1 -> WORDS . sen1
-    (4) sen1 -> WORDS .
-    (3) sen1 -> . WORDS sen1
-    (4) sen1 -> . WORDS
+    (5) instruction -> condition .
 
-    $end            reduce using rule 4 (sen1 -> WORDS .)
-    WORDS           shift and go to state 4
+    LABEL           reduce using rule 5 (instruction -> condition .)
+    $end            reduce using rule 5 (instruction -> condition .)
 
-    sen1                           shift and go to state 6
 
 state 5
 
-    (1) sentence -> WORDS VERBS . sentence
-    (1) sentence -> . WORDS VERBS sentence
-    (2) sentence -> . sen1
-    (3) sen1 -> . WORDS sen1
-    (4) sen1 -> . WORDS
+    (1) instructions -> instructions instruction .
 
-    WORDS           shift and go to state 2
+    LABEL           reduce using rule 1 (instructions -> instructions instruction .)
+    $end            reduce using rule 1 (instructions -> instructions instruction .)
 
-    sentence                       shift and go to state 7
-    sen1                           shift and go to state 3
 
 state 6
 
-    (3) sen1 -> WORDS sen1 .
+    (3) instruction -> LABEL DOLLAR . OPCODE operands
+    (4) instruction -> LABEL DOLLAR . GOTO LABEL
+    (6) condition -> LABEL DOLLAR . IF comparison GOTO LABEL
+    (7) condition -> LABEL DOLLAR . IF comparison OPCODE operands
 
-    $end            reduce using rule 3 (sen1 -> WORDS sen1 .)
+    OPCODE          shift and go to state 7
+    GOTO            shift and go to state 8
+    IF              shift and go to state 9
 
 
 state 7
 
-    (1) sentence -> WORDS VERBS sentence .
+    (3) instruction -> LABEL DOLLAR OPCODE . operands
+    (9) operands -> . operand COMMA operands
+    (10) operands -> . operand
+    (11) operand -> . REG
+    (12) operand -> . NUMBER
+    (13) operand -> . STRING
 
-    $end            reduce using rule 1 (sentence -> WORDS VERBS sentence .)
+    REG             shift and go to state 12
+    NUMBER          shift and go to state 13
+    STRING          shift and go to state 14
+
+    operands                       shift and go to state 10
+    operand                        shift and go to state 11
+
+state 8
+
+    (4) instruction -> LABEL DOLLAR GOTO . LABEL
+
+    LABEL           shift and go to state 15
+
+
+state 9
+
+    (6) condition -> LABEL DOLLAR IF . comparison GOTO LABEL
+    (7) condition -> LABEL DOLLAR IF . comparison OPCODE operands
+    (8) comparison -> . operand COMPARISON operand
+    (11) operand -> . REG
+    (12) operand -> . NUMBER
+    (13) operand -> . STRING
+
+    REG             shift and go to state 12
+    NUMBER          shift and go to state 13
+    STRING          shift and go to state 14
+
+    comparison                     shift and go to state 16
+    operand                        shift and go to state 17
+
+state 10
+
+    (3) instruction -> LABEL DOLLAR OPCODE operands .
+
+    LABEL           reduce using rule 3 (instruction -> LABEL DOLLAR OPCODE operands .)
+    $end            reduce using rule 3 (instruction -> LABEL DOLLAR OPCODE operands .)
+
+
+state 11
+
+    (9) operands -> operand . COMMA operands
+    (10) operands -> operand .
+
+    COMMA           shift and go to state 18
+    LABEL           reduce using rule 10 (operands -> operand .)
+    $end            reduce using rule 10 (operands -> operand .)
+
+
+state 12
+
+    (11) operand -> REG .
+
+    COMMA           reduce using rule 11 (operand -> REG .)
+    LABEL           reduce using rule 11 (operand -> REG .)
+    $end            reduce using rule 11 (operand -> REG .)
+    COMPARISON      reduce using rule 11 (operand -> REG .)
+    GOTO            reduce using rule 11 (operand -> REG .)
+    OPCODE          reduce using rule 11 (operand -> REG .)
+
+
+state 13
+
+    (12) operand -> NUMBER .
+
+    COMMA           reduce using rule 12 (operand -> NUMBER .)
+    LABEL           reduce using rule 12 (operand -> NUMBER .)
+    $end            reduce using rule 12 (operand -> NUMBER .)
+    COMPARISON      reduce using rule 12 (operand -> NUMBER .)
+    GOTO            reduce using rule 12 (operand -> NUMBER .)
+    OPCODE          reduce using rule 12 (operand -> NUMBER .)
+
+
+state 14
+
+    (13) operand -> STRING .
+
+    COMMA           reduce using rule 13 (operand -> STRING .)
+    LABEL           reduce using rule 13 (operand -> STRING .)
+    $end            reduce using rule 13 (operand -> STRING .)
+    COMPARISON      reduce using rule 13 (operand -> STRING .)
+    GOTO            reduce using rule 13 (operand -> STRING .)
+    OPCODE          reduce using rule 13 (operand -> STRING .)
+
+
+state 15
+
+    (4) instruction -> LABEL DOLLAR GOTO LABEL .
+
+    LABEL           reduce using rule 4 (instruction -> LABEL DOLLAR GOTO LABEL .)
+    $end            reduce using rule 4 (instruction -> LABEL DOLLAR GOTO LABEL .)
+
+
+state 16
+
+    (6) condition -> LABEL DOLLAR IF comparison . GOTO LABEL
+    (7) condition -> LABEL DOLLAR IF comparison . OPCODE operands
+
+    GOTO            shift and go to state 19
+    OPCODE          shift and go to state 20
+
+
+state 17
+
+    (8) comparison -> operand . COMPARISON operand
+
+    COMPARISON      shift and go to state 21
+
+
+state 18
+
+    (9) operands -> operand COMMA . operands
+    (9) operands -> . operand COMMA operands
+    (10) operands -> . operand
+    (11) operand -> . REG
+    (12) operand -> . NUMBER
+    (13) operand -> . STRING
+
+    REG             shift and go to state 12
+    NUMBER          shift and go to state 13
+    STRING          shift and go to state 14
+
+    operand                        shift and go to state 11
+    operands                       shift and go to state 22
+
+state 19
+
+    (6) condition -> LABEL DOLLAR IF comparison GOTO . LABEL
+
+    LABEL           shift and go to state 23
+
+
+state 20
+
+    (7) condition -> LABEL DOLLAR IF comparison OPCODE . operands
+    (9) operands -> . operand COMMA operands
+    (10) operands -> . operand
+    (11) operand -> . REG
+    (12) operand -> . NUMBER
+    (13) operand -> . STRING
+
+    REG             shift and go to state 12
+    NUMBER          shift and go to state 13
+    STRING          shift and go to state 14
+
+    operands                       shift and go to state 24
+    operand                        shift and go to state 11
+
+state 21
+
+    (8) comparison -> operand COMPARISON . operand
+    (11) operand -> . REG
+    (12) operand -> . NUMBER
+    (13) operand -> . STRING
+
+    REG             shift and go to state 12
+    NUMBER          shift and go to state 13
+    STRING          shift and go to state 14
+
+    operand                        shift and go to state 25
+
+state 22
+
+    (9) operands -> operand COMMA operands .
+
+    LABEL           reduce using rule 9 (operands -> operand COMMA operands .)
+    $end            reduce using rule 9 (operands -> operand COMMA operands .)
+
+
+state 23
+
+    (6) condition -> LABEL DOLLAR IF comparison GOTO LABEL .
+
+    LABEL           reduce using rule 6 (condition -> LABEL DOLLAR IF comparison GOTO LABEL .)
+    $end            reduce using rule 6 (condition -> LABEL DOLLAR IF comparison GOTO LABEL .)
+
+
+state 24
+
+    (7) condition -> LABEL DOLLAR IF comparison OPCODE operands .
+
+    LABEL           reduce using rule 7 (condition -> LABEL DOLLAR IF comparison OPCODE operands .)
+    $end            reduce using rule 7 (condition -> LABEL DOLLAR IF comparison OPCODE operands .)
+
+
+state 25
+
+    (8) comparison -> operand COMPARISON operand .
+
+    GOTO            reduce using rule 8 (comparison -> operand COMPARISON operand .)
+    OPCODE          reduce using rule 8 (comparison -> operand COMPARISON operand .)
 

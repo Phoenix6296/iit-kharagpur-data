@@ -3,7 +3,7 @@ import ply.yacc as yacc
 
 # Lexer
 tokens = [
-    'LABEL', 'DOLLAR', 'OPCODE', 'REG', 'NUMBER', 'STRING', 'COMMA', 'COMPARISON', 'IF', 'GOTO'
+    'LABEL', 'DOLLAR', 'OPCODE', 'REG', 'NUMBER', 'STRING', 'COMMA', 'COMPARISON', 'IF', 'GOTO',
 ]
 
 t_DOLLAR = r'\$\$\$'
@@ -12,7 +12,7 @@ t_COMMA = r','
 t_ignore = ' \t'
 
 def t_OPCODE(t):
-    r'STOR|PRINT|HLT|SUM'
+    r'STOR|PRINT|HLT|SUM|MUL|DIV|MOD|AND|OR|XOR|NOT|SHL|SHR'
     return t
 
 def t_GOTO(t):
@@ -110,6 +110,7 @@ parser = yacc.yacc()
 class VirtualMachine:
     def __init__(self):
         self.registers = {}
+        self.print_statements = []
 
     def resolve_value(self, operand):
         if isinstance(operand, str) and operand in self.registers:
@@ -122,7 +123,25 @@ class VirtualMachine:
         if opcode == 'STOR':
             self.stor(operands)
         elif opcode == 'SUM':
-            self.summation(operands)
+            self.arithmetic_command(operands, lambda a, b: a + b)
+        elif opcode == 'MUL':
+            self.arithmetic_command(operands, lambda a, b: a * b)
+        elif opcode == 'DIV':
+            self.arithmetic_command(operands, lambda a, b: a / b if b != 0 else print("Error: Division by zero"))
+        elif opcode == 'MOD':
+            self.arithmetic_command(operands, lambda a, b: a % b if b != 0 else print("Error: Division by zero"))
+        elif opcode == 'AND':
+            self.bitwise_command(operands, lambda a, b: a & b)
+        elif opcode == 'OR':
+            self.bitwise_command(operands, lambda a, b: a | b)
+        elif opcode == 'XOR':
+            self.bitwise_command(operands, lambda a, b: a ^ b)
+        elif opcode == 'NOT':
+            self.not_command(operands)
+        elif opcode == 'SHL':
+            self.shift_command(operands, lambda a, b: a << b)
+        elif opcode == 'SHR':
+            self.shift_command(operands, lambda a, b: a >> b)
         elif opcode == 'PRINT':
             self.print_register(operands)
         elif opcode == 'IF':
@@ -164,7 +183,6 @@ class VirtualMachine:
     def goto(self, label, instructions):
         for idx, inst in enumerate(instructions):
             if inst['label'] == label:
-                print(f"Jumping to label {label}")
                 return idx - 1
         print(f"Error: Label {label} not found.")
         return len(instructions)
@@ -173,27 +191,56 @@ class VirtualMachine:
         reg = operands[0]
         value = self.resolve_value(operands[1])
         self.registers[reg] = value
-        print(f"Stored {value} in register {reg}")
 
-    def summation(self, operands):
+    def arithmetic_command(self, operands, operation):
         reg = operands[0]
         if reg not in self.registers:
             print(f"Error: Register {reg} not initialized.")
             return
         value = self.resolve_value(operands[1])
-        self.registers[reg] += value
-        print(f"Added {value} to register {reg}, new value: {self.registers[reg]}")
+        self.registers[reg] = operation(self.registers[reg], value)
+
+    def bitwise_command(self, operands, operation):
+        reg = operands[0]
+        if reg not in self.registers:
+            print(f"Error: Register {reg} not initialized.")
+            return
+        value = self.resolve_value(operands[1])
+        self.registers[reg] = operation(self.registers[reg], value)
+
+    def not_command(self, operands):
+        reg = operands[0]
+        if reg not in self.registers:
+            print(f"Error: Register {reg} not initialized.")
+            return
+        self.registers[reg] = ~self.registers[reg]
+
+    def shift_command(self, operands, operation):
+        reg = operands[0]
+        if reg not in self.registers:
+            print(f"Error: Register {reg} not initialized.")
+            return
+        value = self.resolve_value(operands[1])
+        self.registers[reg] = operation(self.registers[reg], value)
 
     def print_register(self, operands):
         operand = operands[0]
         if isinstance(operand, str) and operand in self.registers:
-            print(f"Value in register {operand}: {self.registers[operand]}")
+            self.print_statements.append(f"Value in register {operand}: {self.registers[operand]}")
         elif isinstance(operand, str):
-            print(operand)
-        else:
-            print(f"Error: Operand {operand} is not valid.")
+            self.print_statements.append(operand)
+
+    def print_final_registers(self):
+        print("\nFinal Register Values:")
+        for reg, value in self.registers.items():
+            print(f"{reg}: {value}")
+        if self.print_statements:
+            print("\nPrint Statements:")
+            for statement in self.print_statements:
+                print(statement)
 
 
+# Example program with logical operations
 program = """
 L0 $$$ STOR A, "Study the examples"
 L1 $$$ STOR a, 10
@@ -203,25 +250,25 @@ L4 $$$ SUM a, 5
 L5 $$$ PRINT a
 L6 $$$ IF a <= 100 GOTO L4
 L7 $$$ PRINT "Done"
-L8 $$$ GOTO L12
+L8 $$$ GOTO L9
 L9 $$$ PRINT "Unreachable"
-L12 $$$ STOR C, "End"
-L10 $$$ PRINT C
-L11 $$$ HLT
+L10 $$$ STOR C, "End"
+L11 $$$ PRINT C
+L12 $$$ HLT
 """
 
 lexer = lex.lex()
 lexer.input(program)
+# for tok in lexer:
+#     print(tok)
 
 parser.parse(program)
+# print(instruction)
 
 if instruction:
-    print("\nParsed Instructions:")
-    for inst in instruction:
-        print(inst)
-
-    vm = VirtualMachine()
     print("\nExecuting Program:")
+    vm = VirtualMachine()
     vm.execute(instruction)
+    vm.print_final_registers()
 else:
     print("No instructions to execute.")
