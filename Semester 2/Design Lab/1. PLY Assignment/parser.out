@@ -1,0 +1,1943 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> program
+Rule 1     program -> instruction_list
+Rule 2     instruction_list -> instruction instruction_list
+Rule 3     instruction_list -> instruction
+Rule 4     instruction -> opt_label command
+Rule 5     opt_label -> LABEL DOLLAR
+Rule 6     opt_label -> empty
+Rule 7     command -> memory_command
+Rule 8     command -> arithmetic_command
+Rule 9     command -> logical_command
+Rule 10    command -> control_flow_command
+Rule 11    command -> print_command
+Rule 12    command -> string_command
+Rule 13    memory_command -> STOR operand COMMA operand
+Rule 14    arithmetic_command -> SUM operand COMMA operand
+Rule 15    arithmetic_command -> SUB operand COMMA operand
+Rule 16    arithmetic_command -> MUL operand COMMA operand
+Rule 17    arithmetic_command -> DIV operand COMMA operand
+Rule 18    arithmetic_command -> MOD operand COMMA operand
+Rule 19    logical_command -> AND operand COMMA operand
+Rule 20    logical_command -> OR operand COMMA operand
+Rule 21    logical_command -> XOR operand COMMA operand
+Rule 22    logical_command -> NOT operand
+Rule 23    logical_command -> SHL operand COMMA operand
+Rule 24    logical_command -> SHR operand COMMA operand
+Rule 25    control_flow_command -> IF condition command
+Rule 26    control_flow_command -> GOTO LABEL
+Rule 27    control_flow_command -> HLT
+Rule 28    print_command -> PRINT operand
+Rule 29    string_command -> CONCAT operand COMMA operand
+Rule 30    string_command -> LENGTH operand
+Rule 31    string_command -> SUBSTR operand COMMA operand COMMA operand
+Rule 32    condition -> operand EQ operand
+Rule 33    condition -> operand NE operand
+Rule 34    condition -> operand GT operand
+Rule 35    condition -> operand LT operand
+Rule 36    operand -> NUMBER
+Rule 37    operand -> STRING
+Rule 38    operand -> MEMREF
+Rule 39    operand -> ID
+Rule 40    empty -> <empty>
+
+Terminals, with rules where they appear
+
+AND                  : 19
+COMMA                : 13 14 15 16 17 18 19 20 21 23 24 29 31 31
+CONCAT               : 29
+DIV                  : 17
+DOLLAR               : 5
+EQ                   : 32
+GOTO                 : 26
+GT                   : 34
+HLT                  : 27
+ID                   : 39
+IF                   : 25
+LABEL                : 5 26
+LENGTH               : 30
+LT                   : 35
+MEMREF               : 38
+MOD                  : 18
+MUL                  : 16
+NE                   : 33
+NOT                  : 22
+NUMBER               : 36
+OR                   : 20
+PRINT                : 28
+SHL                  : 23
+SHR                  : 24
+STOR                 : 13
+STRING               : 37
+SUB                  : 15
+SUBSTR               : 31
+SUM                  : 14
+XOR                  : 21
+error                : 
+
+Nonterminals, with rules where they appear
+
+arithmetic_command   : 8
+command              : 4 25
+condition            : 25
+control_flow_command : 10
+empty                : 6
+instruction          : 2 3
+instruction_list     : 1 2
+logical_command      : 9
+memory_command       : 7
+operand              : 13 13 14 14 15 15 16 16 17 17 18 18 19 19 20 20 21 21 22 23 23 24 24 28 29 29 30 31 31 31 32 32 33 33 34 34 35 35
+opt_label            : 4
+print_command        : 11
+program              : 0
+string_command       : 12
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . program
+    (1) program -> . instruction_list
+    (2) instruction_list -> . instruction instruction_list
+    (3) instruction_list -> . instruction
+    (4) instruction -> . opt_label command
+    (5) opt_label -> . LABEL DOLLAR
+    (6) opt_label -> . empty
+    (40) empty -> .
+
+    LABEL           shift and go to state 5
+    STOR            reduce using rule 40 (empty -> .)
+    SUM             reduce using rule 40 (empty -> .)
+    SUB             reduce using rule 40 (empty -> .)
+    MUL             reduce using rule 40 (empty -> .)
+    DIV             reduce using rule 40 (empty -> .)
+    MOD             reduce using rule 40 (empty -> .)
+    AND             reduce using rule 40 (empty -> .)
+    OR              reduce using rule 40 (empty -> .)
+    XOR             reduce using rule 40 (empty -> .)
+    NOT             reduce using rule 40 (empty -> .)
+    SHL             reduce using rule 40 (empty -> .)
+    SHR             reduce using rule 40 (empty -> .)
+    IF              reduce using rule 40 (empty -> .)
+    GOTO            reduce using rule 40 (empty -> .)
+    HLT             reduce using rule 40 (empty -> .)
+    PRINT           reduce using rule 40 (empty -> .)
+    CONCAT          reduce using rule 40 (empty -> .)
+    LENGTH          reduce using rule 40 (empty -> .)
+    SUBSTR          reduce using rule 40 (empty -> .)
+
+    program                        shift and go to state 1
+    instruction_list               shift and go to state 2
+    instruction                    shift and go to state 3
+    opt_label                      shift and go to state 4
+    empty                          shift and go to state 6
+
+state 1
+
+    (0) S' -> program .
+
+
+
+state 2
+
+    (1) program -> instruction_list .
+
+    $end            reduce using rule 1 (program -> instruction_list .)
+
+
+state 3
+
+    (2) instruction_list -> instruction . instruction_list
+    (3) instruction_list -> instruction .
+    (2) instruction_list -> . instruction instruction_list
+    (3) instruction_list -> . instruction
+    (4) instruction -> . opt_label command
+    (5) opt_label -> . LABEL DOLLAR
+    (6) opt_label -> . empty
+    (40) empty -> .
+
+    $end            reduce using rule 3 (instruction_list -> instruction .)
+    LABEL           shift and go to state 5
+    STOR            reduce using rule 40 (empty -> .)
+    SUM             reduce using rule 40 (empty -> .)
+    SUB             reduce using rule 40 (empty -> .)
+    MUL             reduce using rule 40 (empty -> .)
+    DIV             reduce using rule 40 (empty -> .)
+    MOD             reduce using rule 40 (empty -> .)
+    AND             reduce using rule 40 (empty -> .)
+    OR              reduce using rule 40 (empty -> .)
+    XOR             reduce using rule 40 (empty -> .)
+    NOT             reduce using rule 40 (empty -> .)
+    SHL             reduce using rule 40 (empty -> .)
+    SHR             reduce using rule 40 (empty -> .)
+    IF              reduce using rule 40 (empty -> .)
+    GOTO            reduce using rule 40 (empty -> .)
+    HLT             reduce using rule 40 (empty -> .)
+    PRINT           reduce using rule 40 (empty -> .)
+    CONCAT          reduce using rule 40 (empty -> .)
+    LENGTH          reduce using rule 40 (empty -> .)
+    SUBSTR          reduce using rule 40 (empty -> .)
+
+    instruction                    shift and go to state 3
+    instruction_list               shift and go to state 7
+    opt_label                      shift and go to state 4
+    empty                          shift and go to state 6
+
+state 4
+
+    (4) instruction -> opt_label . command
+    (7) command -> . memory_command
+    (8) command -> . arithmetic_command
+    (9) command -> . logical_command
+    (10) command -> . control_flow_command
+    (11) command -> . print_command
+    (12) command -> . string_command
+    (13) memory_command -> . STOR operand COMMA operand
+    (14) arithmetic_command -> . SUM operand COMMA operand
+    (15) arithmetic_command -> . SUB operand COMMA operand
+    (16) arithmetic_command -> . MUL operand COMMA operand
+    (17) arithmetic_command -> . DIV operand COMMA operand
+    (18) arithmetic_command -> . MOD operand COMMA operand
+    (19) logical_command -> . AND operand COMMA operand
+    (20) logical_command -> . OR operand COMMA operand
+    (21) logical_command -> . XOR operand COMMA operand
+    (22) logical_command -> . NOT operand
+    (23) logical_command -> . SHL operand COMMA operand
+    (24) logical_command -> . SHR operand COMMA operand
+    (25) control_flow_command -> . IF condition command
+    (26) control_flow_command -> . GOTO LABEL
+    (27) control_flow_command -> . HLT
+    (28) print_command -> . PRINT operand
+    (29) string_command -> . CONCAT operand COMMA operand
+    (30) string_command -> . LENGTH operand
+    (31) string_command -> . SUBSTR operand COMMA operand COMMA operand
+
+    STOR            shift and go to state 15
+    SUM             shift and go to state 16
+    SUB             shift and go to state 17
+    MUL             shift and go to state 18
+    DIV             shift and go to state 19
+    MOD             shift and go to state 20
+    AND             shift and go to state 21
+    OR              shift and go to state 22
+    XOR             shift and go to state 23
+    NOT             shift and go to state 24
+    SHL             shift and go to state 25
+    SHR             shift and go to state 26
+    IF              shift and go to state 27
+    GOTO            shift and go to state 28
+    HLT             shift and go to state 29
+    PRINT           shift and go to state 30
+    CONCAT          shift and go to state 31
+    LENGTH          shift and go to state 32
+    SUBSTR          shift and go to state 33
+
+    command                        shift and go to state 8
+    memory_command                 shift and go to state 9
+    arithmetic_command             shift and go to state 10
+    logical_command                shift and go to state 11
+    control_flow_command           shift and go to state 12
+    print_command                  shift and go to state 13
+    string_command                 shift and go to state 14
+
+state 5
+
+    (5) opt_label -> LABEL . DOLLAR
+
+    DOLLAR          shift and go to state 34
+
+
+state 6
+
+    (6) opt_label -> empty .
+
+    STOR            reduce using rule 6 (opt_label -> empty .)
+    SUM             reduce using rule 6 (opt_label -> empty .)
+    SUB             reduce using rule 6 (opt_label -> empty .)
+    MUL             reduce using rule 6 (opt_label -> empty .)
+    DIV             reduce using rule 6 (opt_label -> empty .)
+    MOD             reduce using rule 6 (opt_label -> empty .)
+    AND             reduce using rule 6 (opt_label -> empty .)
+    OR              reduce using rule 6 (opt_label -> empty .)
+    XOR             reduce using rule 6 (opt_label -> empty .)
+    NOT             reduce using rule 6 (opt_label -> empty .)
+    SHL             reduce using rule 6 (opt_label -> empty .)
+    SHR             reduce using rule 6 (opt_label -> empty .)
+    IF              reduce using rule 6 (opt_label -> empty .)
+    GOTO            reduce using rule 6 (opt_label -> empty .)
+    HLT             reduce using rule 6 (opt_label -> empty .)
+    PRINT           reduce using rule 6 (opt_label -> empty .)
+    CONCAT          reduce using rule 6 (opt_label -> empty .)
+    LENGTH          reduce using rule 6 (opt_label -> empty .)
+    SUBSTR          reduce using rule 6 (opt_label -> empty .)
+
+
+state 7
+
+    (2) instruction_list -> instruction instruction_list .
+
+    $end            reduce using rule 2 (instruction_list -> instruction instruction_list .)
+
+
+state 8
+
+    (4) instruction -> opt_label command .
+
+    LABEL           reduce using rule 4 (instruction -> opt_label command .)
+    STOR            reduce using rule 4 (instruction -> opt_label command .)
+    SUM             reduce using rule 4 (instruction -> opt_label command .)
+    SUB             reduce using rule 4 (instruction -> opt_label command .)
+    MUL             reduce using rule 4 (instruction -> opt_label command .)
+    DIV             reduce using rule 4 (instruction -> opt_label command .)
+    MOD             reduce using rule 4 (instruction -> opt_label command .)
+    AND             reduce using rule 4 (instruction -> opt_label command .)
+    OR              reduce using rule 4 (instruction -> opt_label command .)
+    XOR             reduce using rule 4 (instruction -> opt_label command .)
+    NOT             reduce using rule 4 (instruction -> opt_label command .)
+    SHL             reduce using rule 4 (instruction -> opt_label command .)
+    SHR             reduce using rule 4 (instruction -> opt_label command .)
+    IF              reduce using rule 4 (instruction -> opt_label command .)
+    GOTO            reduce using rule 4 (instruction -> opt_label command .)
+    HLT             reduce using rule 4 (instruction -> opt_label command .)
+    PRINT           reduce using rule 4 (instruction -> opt_label command .)
+    CONCAT          reduce using rule 4 (instruction -> opt_label command .)
+    LENGTH          reduce using rule 4 (instruction -> opt_label command .)
+    SUBSTR          reduce using rule 4 (instruction -> opt_label command .)
+    $end            reduce using rule 4 (instruction -> opt_label command .)
+
+
+state 9
+
+    (7) command -> memory_command .
+
+    LABEL           reduce using rule 7 (command -> memory_command .)
+    STOR            reduce using rule 7 (command -> memory_command .)
+    SUM             reduce using rule 7 (command -> memory_command .)
+    SUB             reduce using rule 7 (command -> memory_command .)
+    MUL             reduce using rule 7 (command -> memory_command .)
+    DIV             reduce using rule 7 (command -> memory_command .)
+    MOD             reduce using rule 7 (command -> memory_command .)
+    AND             reduce using rule 7 (command -> memory_command .)
+    OR              reduce using rule 7 (command -> memory_command .)
+    XOR             reduce using rule 7 (command -> memory_command .)
+    NOT             reduce using rule 7 (command -> memory_command .)
+    SHL             reduce using rule 7 (command -> memory_command .)
+    SHR             reduce using rule 7 (command -> memory_command .)
+    IF              reduce using rule 7 (command -> memory_command .)
+    GOTO            reduce using rule 7 (command -> memory_command .)
+    HLT             reduce using rule 7 (command -> memory_command .)
+    PRINT           reduce using rule 7 (command -> memory_command .)
+    CONCAT          reduce using rule 7 (command -> memory_command .)
+    LENGTH          reduce using rule 7 (command -> memory_command .)
+    SUBSTR          reduce using rule 7 (command -> memory_command .)
+    $end            reduce using rule 7 (command -> memory_command .)
+
+
+state 10
+
+    (8) command -> arithmetic_command .
+
+    LABEL           reduce using rule 8 (command -> arithmetic_command .)
+    STOR            reduce using rule 8 (command -> arithmetic_command .)
+    SUM             reduce using rule 8 (command -> arithmetic_command .)
+    SUB             reduce using rule 8 (command -> arithmetic_command .)
+    MUL             reduce using rule 8 (command -> arithmetic_command .)
+    DIV             reduce using rule 8 (command -> arithmetic_command .)
+    MOD             reduce using rule 8 (command -> arithmetic_command .)
+    AND             reduce using rule 8 (command -> arithmetic_command .)
+    OR              reduce using rule 8 (command -> arithmetic_command .)
+    XOR             reduce using rule 8 (command -> arithmetic_command .)
+    NOT             reduce using rule 8 (command -> arithmetic_command .)
+    SHL             reduce using rule 8 (command -> arithmetic_command .)
+    SHR             reduce using rule 8 (command -> arithmetic_command .)
+    IF              reduce using rule 8 (command -> arithmetic_command .)
+    GOTO            reduce using rule 8 (command -> arithmetic_command .)
+    HLT             reduce using rule 8 (command -> arithmetic_command .)
+    PRINT           reduce using rule 8 (command -> arithmetic_command .)
+    CONCAT          reduce using rule 8 (command -> arithmetic_command .)
+    LENGTH          reduce using rule 8 (command -> arithmetic_command .)
+    SUBSTR          reduce using rule 8 (command -> arithmetic_command .)
+    $end            reduce using rule 8 (command -> arithmetic_command .)
+
+
+state 11
+
+    (9) command -> logical_command .
+
+    LABEL           reduce using rule 9 (command -> logical_command .)
+    STOR            reduce using rule 9 (command -> logical_command .)
+    SUM             reduce using rule 9 (command -> logical_command .)
+    SUB             reduce using rule 9 (command -> logical_command .)
+    MUL             reduce using rule 9 (command -> logical_command .)
+    DIV             reduce using rule 9 (command -> logical_command .)
+    MOD             reduce using rule 9 (command -> logical_command .)
+    AND             reduce using rule 9 (command -> logical_command .)
+    OR              reduce using rule 9 (command -> logical_command .)
+    XOR             reduce using rule 9 (command -> logical_command .)
+    NOT             reduce using rule 9 (command -> logical_command .)
+    SHL             reduce using rule 9 (command -> logical_command .)
+    SHR             reduce using rule 9 (command -> logical_command .)
+    IF              reduce using rule 9 (command -> logical_command .)
+    GOTO            reduce using rule 9 (command -> logical_command .)
+    HLT             reduce using rule 9 (command -> logical_command .)
+    PRINT           reduce using rule 9 (command -> logical_command .)
+    CONCAT          reduce using rule 9 (command -> logical_command .)
+    LENGTH          reduce using rule 9 (command -> logical_command .)
+    SUBSTR          reduce using rule 9 (command -> logical_command .)
+    $end            reduce using rule 9 (command -> logical_command .)
+
+
+state 12
+
+    (10) command -> control_flow_command .
+
+    LABEL           reduce using rule 10 (command -> control_flow_command .)
+    STOR            reduce using rule 10 (command -> control_flow_command .)
+    SUM             reduce using rule 10 (command -> control_flow_command .)
+    SUB             reduce using rule 10 (command -> control_flow_command .)
+    MUL             reduce using rule 10 (command -> control_flow_command .)
+    DIV             reduce using rule 10 (command -> control_flow_command .)
+    MOD             reduce using rule 10 (command -> control_flow_command .)
+    AND             reduce using rule 10 (command -> control_flow_command .)
+    OR              reduce using rule 10 (command -> control_flow_command .)
+    XOR             reduce using rule 10 (command -> control_flow_command .)
+    NOT             reduce using rule 10 (command -> control_flow_command .)
+    SHL             reduce using rule 10 (command -> control_flow_command .)
+    SHR             reduce using rule 10 (command -> control_flow_command .)
+    IF              reduce using rule 10 (command -> control_flow_command .)
+    GOTO            reduce using rule 10 (command -> control_flow_command .)
+    HLT             reduce using rule 10 (command -> control_flow_command .)
+    PRINT           reduce using rule 10 (command -> control_flow_command .)
+    CONCAT          reduce using rule 10 (command -> control_flow_command .)
+    LENGTH          reduce using rule 10 (command -> control_flow_command .)
+    SUBSTR          reduce using rule 10 (command -> control_flow_command .)
+    $end            reduce using rule 10 (command -> control_flow_command .)
+
+
+state 13
+
+    (11) command -> print_command .
+
+    LABEL           reduce using rule 11 (command -> print_command .)
+    STOR            reduce using rule 11 (command -> print_command .)
+    SUM             reduce using rule 11 (command -> print_command .)
+    SUB             reduce using rule 11 (command -> print_command .)
+    MUL             reduce using rule 11 (command -> print_command .)
+    DIV             reduce using rule 11 (command -> print_command .)
+    MOD             reduce using rule 11 (command -> print_command .)
+    AND             reduce using rule 11 (command -> print_command .)
+    OR              reduce using rule 11 (command -> print_command .)
+    XOR             reduce using rule 11 (command -> print_command .)
+    NOT             reduce using rule 11 (command -> print_command .)
+    SHL             reduce using rule 11 (command -> print_command .)
+    SHR             reduce using rule 11 (command -> print_command .)
+    IF              reduce using rule 11 (command -> print_command .)
+    GOTO            reduce using rule 11 (command -> print_command .)
+    HLT             reduce using rule 11 (command -> print_command .)
+    PRINT           reduce using rule 11 (command -> print_command .)
+    CONCAT          reduce using rule 11 (command -> print_command .)
+    LENGTH          reduce using rule 11 (command -> print_command .)
+    SUBSTR          reduce using rule 11 (command -> print_command .)
+    $end            reduce using rule 11 (command -> print_command .)
+
+
+state 14
+
+    (12) command -> string_command .
+
+    LABEL           reduce using rule 12 (command -> string_command .)
+    STOR            reduce using rule 12 (command -> string_command .)
+    SUM             reduce using rule 12 (command -> string_command .)
+    SUB             reduce using rule 12 (command -> string_command .)
+    MUL             reduce using rule 12 (command -> string_command .)
+    DIV             reduce using rule 12 (command -> string_command .)
+    MOD             reduce using rule 12 (command -> string_command .)
+    AND             reduce using rule 12 (command -> string_command .)
+    OR              reduce using rule 12 (command -> string_command .)
+    XOR             reduce using rule 12 (command -> string_command .)
+    NOT             reduce using rule 12 (command -> string_command .)
+    SHL             reduce using rule 12 (command -> string_command .)
+    SHR             reduce using rule 12 (command -> string_command .)
+    IF              reduce using rule 12 (command -> string_command .)
+    GOTO            reduce using rule 12 (command -> string_command .)
+    HLT             reduce using rule 12 (command -> string_command .)
+    PRINT           reduce using rule 12 (command -> string_command .)
+    CONCAT          reduce using rule 12 (command -> string_command .)
+    LENGTH          reduce using rule 12 (command -> string_command .)
+    SUBSTR          reduce using rule 12 (command -> string_command .)
+    $end            reduce using rule 12 (command -> string_command .)
+
+
+state 15
+
+    (13) memory_command -> STOR . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 35
+
+state 16
+
+    (14) arithmetic_command -> SUM . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 40
+
+state 17
+
+    (15) arithmetic_command -> SUB . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 41
+
+state 18
+
+    (16) arithmetic_command -> MUL . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 42
+
+state 19
+
+    (17) arithmetic_command -> DIV . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 43
+
+state 20
+
+    (18) arithmetic_command -> MOD . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 44
+
+state 21
+
+    (19) logical_command -> AND . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 45
+
+state 22
+
+    (20) logical_command -> OR . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 46
+
+state 23
+
+    (21) logical_command -> XOR . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 47
+
+state 24
+
+    (22) logical_command -> NOT . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 48
+
+state 25
+
+    (23) logical_command -> SHL . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 49
+
+state 26
+
+    (24) logical_command -> SHR . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 50
+
+state 27
+
+    (25) control_flow_command -> IF . condition command
+    (32) condition -> . operand EQ operand
+    (33) condition -> . operand NE operand
+    (34) condition -> . operand GT operand
+    (35) condition -> . operand LT operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    condition                      shift and go to state 51
+    operand                        shift and go to state 52
+
+state 28
+
+    (26) control_flow_command -> GOTO . LABEL
+
+    LABEL           shift and go to state 53
+
+
+state 29
+
+    (27) control_flow_command -> HLT .
+
+    LABEL           reduce using rule 27 (control_flow_command -> HLT .)
+    STOR            reduce using rule 27 (control_flow_command -> HLT .)
+    SUM             reduce using rule 27 (control_flow_command -> HLT .)
+    SUB             reduce using rule 27 (control_flow_command -> HLT .)
+    MUL             reduce using rule 27 (control_flow_command -> HLT .)
+    DIV             reduce using rule 27 (control_flow_command -> HLT .)
+    MOD             reduce using rule 27 (control_flow_command -> HLT .)
+    AND             reduce using rule 27 (control_flow_command -> HLT .)
+    OR              reduce using rule 27 (control_flow_command -> HLT .)
+    XOR             reduce using rule 27 (control_flow_command -> HLT .)
+    NOT             reduce using rule 27 (control_flow_command -> HLT .)
+    SHL             reduce using rule 27 (control_flow_command -> HLT .)
+    SHR             reduce using rule 27 (control_flow_command -> HLT .)
+    IF              reduce using rule 27 (control_flow_command -> HLT .)
+    GOTO            reduce using rule 27 (control_flow_command -> HLT .)
+    HLT             reduce using rule 27 (control_flow_command -> HLT .)
+    PRINT           reduce using rule 27 (control_flow_command -> HLT .)
+    CONCAT          reduce using rule 27 (control_flow_command -> HLT .)
+    LENGTH          reduce using rule 27 (control_flow_command -> HLT .)
+    SUBSTR          reduce using rule 27 (control_flow_command -> HLT .)
+    $end            reduce using rule 27 (control_flow_command -> HLT .)
+
+
+state 30
+
+    (28) print_command -> PRINT . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 54
+
+state 31
+
+    (29) string_command -> CONCAT . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 55
+
+state 32
+
+    (30) string_command -> LENGTH . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 56
+
+state 33
+
+    (31) string_command -> SUBSTR . operand COMMA operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 57
+
+state 34
+
+    (5) opt_label -> LABEL DOLLAR .
+
+    STOR            reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    SUM             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    SUB             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    MUL             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    DIV             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    MOD             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    AND             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    OR              reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    XOR             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    NOT             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    SHL             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    SHR             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    IF              reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    GOTO            reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    HLT             reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    PRINT           reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    CONCAT          reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    LENGTH          reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+    SUBSTR          reduce using rule 5 (opt_label -> LABEL DOLLAR .)
+
+
+state 35
+
+    (13) memory_command -> STOR operand . COMMA operand
+
+    COMMA           shift and go to state 58
+
+
+state 36
+
+    (36) operand -> NUMBER .
+
+    COMMA           reduce using rule 36 (operand -> NUMBER .)
+    LABEL           reduce using rule 36 (operand -> NUMBER .)
+    STOR            reduce using rule 36 (operand -> NUMBER .)
+    SUM             reduce using rule 36 (operand -> NUMBER .)
+    SUB             reduce using rule 36 (operand -> NUMBER .)
+    MUL             reduce using rule 36 (operand -> NUMBER .)
+    DIV             reduce using rule 36 (operand -> NUMBER .)
+    MOD             reduce using rule 36 (operand -> NUMBER .)
+    AND             reduce using rule 36 (operand -> NUMBER .)
+    OR              reduce using rule 36 (operand -> NUMBER .)
+    XOR             reduce using rule 36 (operand -> NUMBER .)
+    NOT             reduce using rule 36 (operand -> NUMBER .)
+    SHL             reduce using rule 36 (operand -> NUMBER .)
+    SHR             reduce using rule 36 (operand -> NUMBER .)
+    IF              reduce using rule 36 (operand -> NUMBER .)
+    GOTO            reduce using rule 36 (operand -> NUMBER .)
+    HLT             reduce using rule 36 (operand -> NUMBER .)
+    PRINT           reduce using rule 36 (operand -> NUMBER .)
+    CONCAT          reduce using rule 36 (operand -> NUMBER .)
+    LENGTH          reduce using rule 36 (operand -> NUMBER .)
+    SUBSTR          reduce using rule 36 (operand -> NUMBER .)
+    $end            reduce using rule 36 (operand -> NUMBER .)
+    EQ              reduce using rule 36 (operand -> NUMBER .)
+    NE              reduce using rule 36 (operand -> NUMBER .)
+    GT              reduce using rule 36 (operand -> NUMBER .)
+    LT              reduce using rule 36 (operand -> NUMBER .)
+
+
+state 37
+
+    (37) operand -> STRING .
+
+    COMMA           reduce using rule 37 (operand -> STRING .)
+    LABEL           reduce using rule 37 (operand -> STRING .)
+    STOR            reduce using rule 37 (operand -> STRING .)
+    SUM             reduce using rule 37 (operand -> STRING .)
+    SUB             reduce using rule 37 (operand -> STRING .)
+    MUL             reduce using rule 37 (operand -> STRING .)
+    DIV             reduce using rule 37 (operand -> STRING .)
+    MOD             reduce using rule 37 (operand -> STRING .)
+    AND             reduce using rule 37 (operand -> STRING .)
+    OR              reduce using rule 37 (operand -> STRING .)
+    XOR             reduce using rule 37 (operand -> STRING .)
+    NOT             reduce using rule 37 (operand -> STRING .)
+    SHL             reduce using rule 37 (operand -> STRING .)
+    SHR             reduce using rule 37 (operand -> STRING .)
+    IF              reduce using rule 37 (operand -> STRING .)
+    GOTO            reduce using rule 37 (operand -> STRING .)
+    HLT             reduce using rule 37 (operand -> STRING .)
+    PRINT           reduce using rule 37 (operand -> STRING .)
+    CONCAT          reduce using rule 37 (operand -> STRING .)
+    LENGTH          reduce using rule 37 (operand -> STRING .)
+    SUBSTR          reduce using rule 37 (operand -> STRING .)
+    $end            reduce using rule 37 (operand -> STRING .)
+    EQ              reduce using rule 37 (operand -> STRING .)
+    NE              reduce using rule 37 (operand -> STRING .)
+    GT              reduce using rule 37 (operand -> STRING .)
+    LT              reduce using rule 37 (operand -> STRING .)
+
+
+state 38
+
+    (38) operand -> MEMREF .
+
+    COMMA           reduce using rule 38 (operand -> MEMREF .)
+    LABEL           reduce using rule 38 (operand -> MEMREF .)
+    STOR            reduce using rule 38 (operand -> MEMREF .)
+    SUM             reduce using rule 38 (operand -> MEMREF .)
+    SUB             reduce using rule 38 (operand -> MEMREF .)
+    MUL             reduce using rule 38 (operand -> MEMREF .)
+    DIV             reduce using rule 38 (operand -> MEMREF .)
+    MOD             reduce using rule 38 (operand -> MEMREF .)
+    AND             reduce using rule 38 (operand -> MEMREF .)
+    OR              reduce using rule 38 (operand -> MEMREF .)
+    XOR             reduce using rule 38 (operand -> MEMREF .)
+    NOT             reduce using rule 38 (operand -> MEMREF .)
+    SHL             reduce using rule 38 (operand -> MEMREF .)
+    SHR             reduce using rule 38 (operand -> MEMREF .)
+    IF              reduce using rule 38 (operand -> MEMREF .)
+    GOTO            reduce using rule 38 (operand -> MEMREF .)
+    HLT             reduce using rule 38 (operand -> MEMREF .)
+    PRINT           reduce using rule 38 (operand -> MEMREF .)
+    CONCAT          reduce using rule 38 (operand -> MEMREF .)
+    LENGTH          reduce using rule 38 (operand -> MEMREF .)
+    SUBSTR          reduce using rule 38 (operand -> MEMREF .)
+    $end            reduce using rule 38 (operand -> MEMREF .)
+    EQ              reduce using rule 38 (operand -> MEMREF .)
+    NE              reduce using rule 38 (operand -> MEMREF .)
+    GT              reduce using rule 38 (operand -> MEMREF .)
+    LT              reduce using rule 38 (operand -> MEMREF .)
+
+
+state 39
+
+    (39) operand -> ID .
+
+    COMMA           reduce using rule 39 (operand -> ID .)
+    LABEL           reduce using rule 39 (operand -> ID .)
+    STOR            reduce using rule 39 (operand -> ID .)
+    SUM             reduce using rule 39 (operand -> ID .)
+    SUB             reduce using rule 39 (operand -> ID .)
+    MUL             reduce using rule 39 (operand -> ID .)
+    DIV             reduce using rule 39 (operand -> ID .)
+    MOD             reduce using rule 39 (operand -> ID .)
+    AND             reduce using rule 39 (operand -> ID .)
+    OR              reduce using rule 39 (operand -> ID .)
+    XOR             reduce using rule 39 (operand -> ID .)
+    NOT             reduce using rule 39 (operand -> ID .)
+    SHL             reduce using rule 39 (operand -> ID .)
+    SHR             reduce using rule 39 (operand -> ID .)
+    IF              reduce using rule 39 (operand -> ID .)
+    GOTO            reduce using rule 39 (operand -> ID .)
+    HLT             reduce using rule 39 (operand -> ID .)
+    PRINT           reduce using rule 39 (operand -> ID .)
+    CONCAT          reduce using rule 39 (operand -> ID .)
+    LENGTH          reduce using rule 39 (operand -> ID .)
+    SUBSTR          reduce using rule 39 (operand -> ID .)
+    $end            reduce using rule 39 (operand -> ID .)
+    EQ              reduce using rule 39 (operand -> ID .)
+    NE              reduce using rule 39 (operand -> ID .)
+    GT              reduce using rule 39 (operand -> ID .)
+    LT              reduce using rule 39 (operand -> ID .)
+
+
+state 40
+
+    (14) arithmetic_command -> SUM operand . COMMA operand
+
+    COMMA           shift and go to state 59
+
+
+state 41
+
+    (15) arithmetic_command -> SUB operand . COMMA operand
+
+    COMMA           shift and go to state 60
+
+
+state 42
+
+    (16) arithmetic_command -> MUL operand . COMMA operand
+
+    COMMA           shift and go to state 61
+
+
+state 43
+
+    (17) arithmetic_command -> DIV operand . COMMA operand
+
+    COMMA           shift and go to state 62
+
+
+state 44
+
+    (18) arithmetic_command -> MOD operand . COMMA operand
+
+    COMMA           shift and go to state 63
+
+
+state 45
+
+    (19) logical_command -> AND operand . COMMA operand
+
+    COMMA           shift and go to state 64
+
+
+state 46
+
+    (20) logical_command -> OR operand . COMMA operand
+
+    COMMA           shift and go to state 65
+
+
+state 47
+
+    (21) logical_command -> XOR operand . COMMA operand
+
+    COMMA           shift and go to state 66
+
+
+state 48
+
+    (22) logical_command -> NOT operand .
+
+    LABEL           reduce using rule 22 (logical_command -> NOT operand .)
+    STOR            reduce using rule 22 (logical_command -> NOT operand .)
+    SUM             reduce using rule 22 (logical_command -> NOT operand .)
+    SUB             reduce using rule 22 (logical_command -> NOT operand .)
+    MUL             reduce using rule 22 (logical_command -> NOT operand .)
+    DIV             reduce using rule 22 (logical_command -> NOT operand .)
+    MOD             reduce using rule 22 (logical_command -> NOT operand .)
+    AND             reduce using rule 22 (logical_command -> NOT operand .)
+    OR              reduce using rule 22 (logical_command -> NOT operand .)
+    XOR             reduce using rule 22 (logical_command -> NOT operand .)
+    NOT             reduce using rule 22 (logical_command -> NOT operand .)
+    SHL             reduce using rule 22 (logical_command -> NOT operand .)
+    SHR             reduce using rule 22 (logical_command -> NOT operand .)
+    IF              reduce using rule 22 (logical_command -> NOT operand .)
+    GOTO            reduce using rule 22 (logical_command -> NOT operand .)
+    HLT             reduce using rule 22 (logical_command -> NOT operand .)
+    PRINT           reduce using rule 22 (logical_command -> NOT operand .)
+    CONCAT          reduce using rule 22 (logical_command -> NOT operand .)
+    LENGTH          reduce using rule 22 (logical_command -> NOT operand .)
+    SUBSTR          reduce using rule 22 (logical_command -> NOT operand .)
+    $end            reduce using rule 22 (logical_command -> NOT operand .)
+
+
+state 49
+
+    (23) logical_command -> SHL operand . COMMA operand
+
+    COMMA           shift and go to state 67
+
+
+state 50
+
+    (24) logical_command -> SHR operand . COMMA operand
+
+    COMMA           shift and go to state 68
+
+
+state 51
+
+    (25) control_flow_command -> IF condition . command
+    (7) command -> . memory_command
+    (8) command -> . arithmetic_command
+    (9) command -> . logical_command
+    (10) command -> . control_flow_command
+    (11) command -> . print_command
+    (12) command -> . string_command
+    (13) memory_command -> . STOR operand COMMA operand
+    (14) arithmetic_command -> . SUM operand COMMA operand
+    (15) arithmetic_command -> . SUB operand COMMA operand
+    (16) arithmetic_command -> . MUL operand COMMA operand
+    (17) arithmetic_command -> . DIV operand COMMA operand
+    (18) arithmetic_command -> . MOD operand COMMA operand
+    (19) logical_command -> . AND operand COMMA operand
+    (20) logical_command -> . OR operand COMMA operand
+    (21) logical_command -> . XOR operand COMMA operand
+    (22) logical_command -> . NOT operand
+    (23) logical_command -> . SHL operand COMMA operand
+    (24) logical_command -> . SHR operand COMMA operand
+    (25) control_flow_command -> . IF condition command
+    (26) control_flow_command -> . GOTO LABEL
+    (27) control_flow_command -> . HLT
+    (28) print_command -> . PRINT operand
+    (29) string_command -> . CONCAT operand COMMA operand
+    (30) string_command -> . LENGTH operand
+    (31) string_command -> . SUBSTR operand COMMA operand COMMA operand
+
+    STOR            shift and go to state 15
+    SUM             shift and go to state 16
+    SUB             shift and go to state 17
+    MUL             shift and go to state 18
+    DIV             shift and go to state 19
+    MOD             shift and go to state 20
+    AND             shift and go to state 21
+    OR              shift and go to state 22
+    XOR             shift and go to state 23
+    NOT             shift and go to state 24
+    SHL             shift and go to state 25
+    SHR             shift and go to state 26
+    IF              shift and go to state 27
+    GOTO            shift and go to state 28
+    HLT             shift and go to state 29
+    PRINT           shift and go to state 30
+    CONCAT          shift and go to state 31
+    LENGTH          shift and go to state 32
+    SUBSTR          shift and go to state 33
+
+    command                        shift and go to state 69
+    memory_command                 shift and go to state 9
+    arithmetic_command             shift and go to state 10
+    logical_command                shift and go to state 11
+    control_flow_command           shift and go to state 12
+    print_command                  shift and go to state 13
+    string_command                 shift and go to state 14
+
+state 52
+
+    (32) condition -> operand . EQ operand
+    (33) condition -> operand . NE operand
+    (34) condition -> operand . GT operand
+    (35) condition -> operand . LT operand
+
+    EQ              shift and go to state 70
+    NE              shift and go to state 71
+    GT              shift and go to state 72
+    LT              shift and go to state 73
+
+
+state 53
+
+    (26) control_flow_command -> GOTO LABEL .
+
+    LABEL           reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    STOR            reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    SUM             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    SUB             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    MUL             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    DIV             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    MOD             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    AND             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    OR              reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    XOR             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    NOT             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    SHL             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    SHR             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    IF              reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    GOTO            reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    HLT             reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    PRINT           reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    CONCAT          reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    LENGTH          reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    SUBSTR          reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+    $end            reduce using rule 26 (control_flow_command -> GOTO LABEL .)
+
+
+state 54
+
+    (28) print_command -> PRINT operand .
+
+    LABEL           reduce using rule 28 (print_command -> PRINT operand .)
+    STOR            reduce using rule 28 (print_command -> PRINT operand .)
+    SUM             reduce using rule 28 (print_command -> PRINT operand .)
+    SUB             reduce using rule 28 (print_command -> PRINT operand .)
+    MUL             reduce using rule 28 (print_command -> PRINT operand .)
+    DIV             reduce using rule 28 (print_command -> PRINT operand .)
+    MOD             reduce using rule 28 (print_command -> PRINT operand .)
+    AND             reduce using rule 28 (print_command -> PRINT operand .)
+    OR              reduce using rule 28 (print_command -> PRINT operand .)
+    XOR             reduce using rule 28 (print_command -> PRINT operand .)
+    NOT             reduce using rule 28 (print_command -> PRINT operand .)
+    SHL             reduce using rule 28 (print_command -> PRINT operand .)
+    SHR             reduce using rule 28 (print_command -> PRINT operand .)
+    IF              reduce using rule 28 (print_command -> PRINT operand .)
+    GOTO            reduce using rule 28 (print_command -> PRINT operand .)
+    HLT             reduce using rule 28 (print_command -> PRINT operand .)
+    PRINT           reduce using rule 28 (print_command -> PRINT operand .)
+    CONCAT          reduce using rule 28 (print_command -> PRINT operand .)
+    LENGTH          reduce using rule 28 (print_command -> PRINT operand .)
+    SUBSTR          reduce using rule 28 (print_command -> PRINT operand .)
+    $end            reduce using rule 28 (print_command -> PRINT operand .)
+
+
+state 55
+
+    (29) string_command -> CONCAT operand . COMMA operand
+
+    COMMA           shift and go to state 74
+
+
+state 56
+
+    (30) string_command -> LENGTH operand .
+
+    LABEL           reduce using rule 30 (string_command -> LENGTH operand .)
+    STOR            reduce using rule 30 (string_command -> LENGTH operand .)
+    SUM             reduce using rule 30 (string_command -> LENGTH operand .)
+    SUB             reduce using rule 30 (string_command -> LENGTH operand .)
+    MUL             reduce using rule 30 (string_command -> LENGTH operand .)
+    DIV             reduce using rule 30 (string_command -> LENGTH operand .)
+    MOD             reduce using rule 30 (string_command -> LENGTH operand .)
+    AND             reduce using rule 30 (string_command -> LENGTH operand .)
+    OR              reduce using rule 30 (string_command -> LENGTH operand .)
+    XOR             reduce using rule 30 (string_command -> LENGTH operand .)
+    NOT             reduce using rule 30 (string_command -> LENGTH operand .)
+    SHL             reduce using rule 30 (string_command -> LENGTH operand .)
+    SHR             reduce using rule 30 (string_command -> LENGTH operand .)
+    IF              reduce using rule 30 (string_command -> LENGTH operand .)
+    GOTO            reduce using rule 30 (string_command -> LENGTH operand .)
+    HLT             reduce using rule 30 (string_command -> LENGTH operand .)
+    PRINT           reduce using rule 30 (string_command -> LENGTH operand .)
+    CONCAT          reduce using rule 30 (string_command -> LENGTH operand .)
+    LENGTH          reduce using rule 30 (string_command -> LENGTH operand .)
+    SUBSTR          reduce using rule 30 (string_command -> LENGTH operand .)
+    $end            reduce using rule 30 (string_command -> LENGTH operand .)
+
+
+state 57
+
+    (31) string_command -> SUBSTR operand . COMMA operand COMMA operand
+
+    COMMA           shift and go to state 75
+
+
+state 58
+
+    (13) memory_command -> STOR operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 76
+
+state 59
+
+    (14) arithmetic_command -> SUM operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 77
+
+state 60
+
+    (15) arithmetic_command -> SUB operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 78
+
+state 61
+
+    (16) arithmetic_command -> MUL operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 79
+
+state 62
+
+    (17) arithmetic_command -> DIV operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 80
+
+state 63
+
+    (18) arithmetic_command -> MOD operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 81
+
+state 64
+
+    (19) logical_command -> AND operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 82
+
+state 65
+
+    (20) logical_command -> OR operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 83
+
+state 66
+
+    (21) logical_command -> XOR operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 84
+
+state 67
+
+    (23) logical_command -> SHL operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 85
+
+state 68
+
+    (24) logical_command -> SHR operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 86
+
+state 69
+
+    (25) control_flow_command -> IF condition command .
+
+    LABEL           reduce using rule 25 (control_flow_command -> IF condition command .)
+    STOR            reduce using rule 25 (control_flow_command -> IF condition command .)
+    SUM             reduce using rule 25 (control_flow_command -> IF condition command .)
+    SUB             reduce using rule 25 (control_flow_command -> IF condition command .)
+    MUL             reduce using rule 25 (control_flow_command -> IF condition command .)
+    DIV             reduce using rule 25 (control_flow_command -> IF condition command .)
+    MOD             reduce using rule 25 (control_flow_command -> IF condition command .)
+    AND             reduce using rule 25 (control_flow_command -> IF condition command .)
+    OR              reduce using rule 25 (control_flow_command -> IF condition command .)
+    XOR             reduce using rule 25 (control_flow_command -> IF condition command .)
+    NOT             reduce using rule 25 (control_flow_command -> IF condition command .)
+    SHL             reduce using rule 25 (control_flow_command -> IF condition command .)
+    SHR             reduce using rule 25 (control_flow_command -> IF condition command .)
+    IF              reduce using rule 25 (control_flow_command -> IF condition command .)
+    GOTO            reduce using rule 25 (control_flow_command -> IF condition command .)
+    HLT             reduce using rule 25 (control_flow_command -> IF condition command .)
+    PRINT           reduce using rule 25 (control_flow_command -> IF condition command .)
+    CONCAT          reduce using rule 25 (control_flow_command -> IF condition command .)
+    LENGTH          reduce using rule 25 (control_flow_command -> IF condition command .)
+    SUBSTR          reduce using rule 25 (control_flow_command -> IF condition command .)
+    $end            reduce using rule 25 (control_flow_command -> IF condition command .)
+
+
+state 70
+
+    (32) condition -> operand EQ . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 87
+
+state 71
+
+    (33) condition -> operand NE . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 88
+
+state 72
+
+    (34) condition -> operand GT . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 89
+
+state 73
+
+    (35) condition -> operand LT . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 90
+
+state 74
+
+    (29) string_command -> CONCAT operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 91
+
+state 75
+
+    (31) string_command -> SUBSTR operand COMMA . operand COMMA operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 92
+
+state 76
+
+    (13) memory_command -> STOR operand COMMA operand .
+
+    LABEL           reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    STOR            reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    SUM             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    SUB             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    MUL             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    DIV             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    MOD             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    AND             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    OR              reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    XOR             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    NOT             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    SHL             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    SHR             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    IF              reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    GOTO            reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    HLT             reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    PRINT           reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    CONCAT          reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    LENGTH          reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    SUBSTR          reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+    $end            reduce using rule 13 (memory_command -> STOR operand COMMA operand .)
+
+
+state 77
+
+    (14) arithmetic_command -> SUM operand COMMA operand .
+
+    LABEL           reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    STOR            reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    SUM             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    SUB             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    MUL             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    DIV             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    MOD             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    AND             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    OR              reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    XOR             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    NOT             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    SHL             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    SHR             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    IF              reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    GOTO            reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    HLT             reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    PRINT           reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    CONCAT          reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    LENGTH          reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    SUBSTR          reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+    $end            reduce using rule 14 (arithmetic_command -> SUM operand COMMA operand .)
+
+
+state 78
+
+    (15) arithmetic_command -> SUB operand COMMA operand .
+
+    LABEL           reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    STOR            reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    SUM             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    SUB             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    MUL             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    DIV             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    MOD             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    AND             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    OR              reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    XOR             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    NOT             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    SHL             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    SHR             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    IF              reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    GOTO            reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    HLT             reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    PRINT           reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    CONCAT          reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    LENGTH          reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    SUBSTR          reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+    $end            reduce using rule 15 (arithmetic_command -> SUB operand COMMA operand .)
+
+
+state 79
+
+    (16) arithmetic_command -> MUL operand COMMA operand .
+
+    LABEL           reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    STOR            reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    SUM             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    SUB             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    MUL             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    DIV             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    MOD             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    AND             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    OR              reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    XOR             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    NOT             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    SHL             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    SHR             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    IF              reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    GOTO            reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    HLT             reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    PRINT           reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    CONCAT          reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    LENGTH          reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    SUBSTR          reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+    $end            reduce using rule 16 (arithmetic_command -> MUL operand COMMA operand .)
+
+
+state 80
+
+    (17) arithmetic_command -> DIV operand COMMA operand .
+
+    LABEL           reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    STOR            reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    SUM             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    SUB             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    MUL             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    DIV             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    MOD             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    AND             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    OR              reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    XOR             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    NOT             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    SHL             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    SHR             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    IF              reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    GOTO            reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    HLT             reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    PRINT           reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    CONCAT          reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    LENGTH          reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    SUBSTR          reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+    $end            reduce using rule 17 (arithmetic_command -> DIV operand COMMA operand .)
+
+
+state 81
+
+    (18) arithmetic_command -> MOD operand COMMA operand .
+
+    LABEL           reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    STOR            reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    SUM             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    SUB             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    MUL             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    DIV             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    MOD             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    AND             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    OR              reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    XOR             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    NOT             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    SHL             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    SHR             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    IF              reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    GOTO            reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    HLT             reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    PRINT           reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    CONCAT          reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    LENGTH          reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    SUBSTR          reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+    $end            reduce using rule 18 (arithmetic_command -> MOD operand COMMA operand .)
+
+
+state 82
+
+    (19) logical_command -> AND operand COMMA operand .
+
+    LABEL           reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    STOR            reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    SUM             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    SUB             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    MUL             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    DIV             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    MOD             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    AND             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    OR              reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    XOR             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    NOT             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    SHL             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    SHR             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    IF              reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    GOTO            reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    HLT             reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    PRINT           reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    CONCAT          reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    LENGTH          reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    SUBSTR          reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+    $end            reduce using rule 19 (logical_command -> AND operand COMMA operand .)
+
+
+state 83
+
+    (20) logical_command -> OR operand COMMA operand .
+
+    LABEL           reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    STOR            reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    SUM             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    SUB             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    MUL             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    DIV             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    MOD             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    AND             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    OR              reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    XOR             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    NOT             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    SHL             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    SHR             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    IF              reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    GOTO            reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    HLT             reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    PRINT           reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    CONCAT          reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    LENGTH          reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    SUBSTR          reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+    $end            reduce using rule 20 (logical_command -> OR operand COMMA operand .)
+
+
+state 84
+
+    (21) logical_command -> XOR operand COMMA operand .
+
+    LABEL           reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    STOR            reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    SUM             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    SUB             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    MUL             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    DIV             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    MOD             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    AND             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    OR              reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    XOR             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    NOT             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    SHL             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    SHR             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    IF              reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    GOTO            reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    HLT             reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    PRINT           reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    CONCAT          reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    LENGTH          reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    SUBSTR          reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+    $end            reduce using rule 21 (logical_command -> XOR operand COMMA operand .)
+
+
+state 85
+
+    (23) logical_command -> SHL operand COMMA operand .
+
+    LABEL           reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    STOR            reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    SUM             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    SUB             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    MUL             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    DIV             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    MOD             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    AND             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    OR              reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    XOR             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    NOT             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    SHL             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    SHR             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    IF              reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    GOTO            reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    HLT             reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    PRINT           reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    CONCAT          reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    LENGTH          reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    SUBSTR          reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+    $end            reduce using rule 23 (logical_command -> SHL operand COMMA operand .)
+
+
+state 86
+
+    (24) logical_command -> SHR operand COMMA operand .
+
+    LABEL           reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    STOR            reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    SUM             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    SUB             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    MUL             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    DIV             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    MOD             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    AND             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    OR              reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    XOR             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    NOT             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    SHL             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    SHR             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    IF              reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    GOTO            reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    HLT             reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    PRINT           reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    CONCAT          reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    LENGTH          reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    SUBSTR          reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+    $end            reduce using rule 24 (logical_command -> SHR operand COMMA operand .)
+
+
+state 87
+
+    (32) condition -> operand EQ operand .
+
+    STOR            reduce using rule 32 (condition -> operand EQ operand .)
+    SUM             reduce using rule 32 (condition -> operand EQ operand .)
+    SUB             reduce using rule 32 (condition -> operand EQ operand .)
+    MUL             reduce using rule 32 (condition -> operand EQ operand .)
+    DIV             reduce using rule 32 (condition -> operand EQ operand .)
+    MOD             reduce using rule 32 (condition -> operand EQ operand .)
+    AND             reduce using rule 32 (condition -> operand EQ operand .)
+    OR              reduce using rule 32 (condition -> operand EQ operand .)
+    XOR             reduce using rule 32 (condition -> operand EQ operand .)
+    NOT             reduce using rule 32 (condition -> operand EQ operand .)
+    SHL             reduce using rule 32 (condition -> operand EQ operand .)
+    SHR             reduce using rule 32 (condition -> operand EQ operand .)
+    IF              reduce using rule 32 (condition -> operand EQ operand .)
+    GOTO            reduce using rule 32 (condition -> operand EQ operand .)
+    HLT             reduce using rule 32 (condition -> operand EQ operand .)
+    PRINT           reduce using rule 32 (condition -> operand EQ operand .)
+    CONCAT          reduce using rule 32 (condition -> operand EQ operand .)
+    LENGTH          reduce using rule 32 (condition -> operand EQ operand .)
+    SUBSTR          reduce using rule 32 (condition -> operand EQ operand .)
+
+
+state 88
+
+    (33) condition -> operand NE operand .
+
+    STOR            reduce using rule 33 (condition -> operand NE operand .)
+    SUM             reduce using rule 33 (condition -> operand NE operand .)
+    SUB             reduce using rule 33 (condition -> operand NE operand .)
+    MUL             reduce using rule 33 (condition -> operand NE operand .)
+    DIV             reduce using rule 33 (condition -> operand NE operand .)
+    MOD             reduce using rule 33 (condition -> operand NE operand .)
+    AND             reduce using rule 33 (condition -> operand NE operand .)
+    OR              reduce using rule 33 (condition -> operand NE operand .)
+    XOR             reduce using rule 33 (condition -> operand NE operand .)
+    NOT             reduce using rule 33 (condition -> operand NE operand .)
+    SHL             reduce using rule 33 (condition -> operand NE operand .)
+    SHR             reduce using rule 33 (condition -> operand NE operand .)
+    IF              reduce using rule 33 (condition -> operand NE operand .)
+    GOTO            reduce using rule 33 (condition -> operand NE operand .)
+    HLT             reduce using rule 33 (condition -> operand NE operand .)
+    PRINT           reduce using rule 33 (condition -> operand NE operand .)
+    CONCAT          reduce using rule 33 (condition -> operand NE operand .)
+    LENGTH          reduce using rule 33 (condition -> operand NE operand .)
+    SUBSTR          reduce using rule 33 (condition -> operand NE operand .)
+
+
+state 89
+
+    (34) condition -> operand GT operand .
+
+    STOR            reduce using rule 34 (condition -> operand GT operand .)
+    SUM             reduce using rule 34 (condition -> operand GT operand .)
+    SUB             reduce using rule 34 (condition -> operand GT operand .)
+    MUL             reduce using rule 34 (condition -> operand GT operand .)
+    DIV             reduce using rule 34 (condition -> operand GT operand .)
+    MOD             reduce using rule 34 (condition -> operand GT operand .)
+    AND             reduce using rule 34 (condition -> operand GT operand .)
+    OR              reduce using rule 34 (condition -> operand GT operand .)
+    XOR             reduce using rule 34 (condition -> operand GT operand .)
+    NOT             reduce using rule 34 (condition -> operand GT operand .)
+    SHL             reduce using rule 34 (condition -> operand GT operand .)
+    SHR             reduce using rule 34 (condition -> operand GT operand .)
+    IF              reduce using rule 34 (condition -> operand GT operand .)
+    GOTO            reduce using rule 34 (condition -> operand GT operand .)
+    HLT             reduce using rule 34 (condition -> operand GT operand .)
+    PRINT           reduce using rule 34 (condition -> operand GT operand .)
+    CONCAT          reduce using rule 34 (condition -> operand GT operand .)
+    LENGTH          reduce using rule 34 (condition -> operand GT operand .)
+    SUBSTR          reduce using rule 34 (condition -> operand GT operand .)
+
+
+state 90
+
+    (35) condition -> operand LT operand .
+
+    STOR            reduce using rule 35 (condition -> operand LT operand .)
+    SUM             reduce using rule 35 (condition -> operand LT operand .)
+    SUB             reduce using rule 35 (condition -> operand LT operand .)
+    MUL             reduce using rule 35 (condition -> operand LT operand .)
+    DIV             reduce using rule 35 (condition -> operand LT operand .)
+    MOD             reduce using rule 35 (condition -> operand LT operand .)
+    AND             reduce using rule 35 (condition -> operand LT operand .)
+    OR              reduce using rule 35 (condition -> operand LT operand .)
+    XOR             reduce using rule 35 (condition -> operand LT operand .)
+    NOT             reduce using rule 35 (condition -> operand LT operand .)
+    SHL             reduce using rule 35 (condition -> operand LT operand .)
+    SHR             reduce using rule 35 (condition -> operand LT operand .)
+    IF              reduce using rule 35 (condition -> operand LT operand .)
+    GOTO            reduce using rule 35 (condition -> operand LT operand .)
+    HLT             reduce using rule 35 (condition -> operand LT operand .)
+    PRINT           reduce using rule 35 (condition -> operand LT operand .)
+    CONCAT          reduce using rule 35 (condition -> operand LT operand .)
+    LENGTH          reduce using rule 35 (condition -> operand LT operand .)
+    SUBSTR          reduce using rule 35 (condition -> operand LT operand .)
+
+
+state 91
+
+    (29) string_command -> CONCAT operand COMMA operand .
+
+    LABEL           reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    STOR            reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    SUM             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    SUB             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    MUL             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    DIV             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    MOD             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    AND             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    OR              reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    XOR             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    NOT             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    SHL             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    SHR             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    IF              reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    GOTO            reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    HLT             reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    PRINT           reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    CONCAT          reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    LENGTH          reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    SUBSTR          reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+    $end            reduce using rule 29 (string_command -> CONCAT operand COMMA operand .)
+
+
+state 92
+
+    (31) string_command -> SUBSTR operand COMMA operand . COMMA operand
+
+    COMMA           shift and go to state 93
+
+
+state 93
+
+    (31) string_command -> SUBSTR operand COMMA operand COMMA . operand
+    (36) operand -> . NUMBER
+    (37) operand -> . STRING
+    (38) operand -> . MEMREF
+    (39) operand -> . ID
+
+    NUMBER          shift and go to state 36
+    STRING          shift and go to state 37
+    MEMREF          shift and go to state 38
+    ID              shift and go to state 39
+
+    operand                        shift and go to state 94
+
+state 94
+
+    (31) string_command -> SUBSTR operand COMMA operand COMMA operand .
+
+    LABEL           reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    STOR            reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    SUM             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    SUB             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    MUL             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    DIV             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    MOD             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    AND             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    OR              reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    XOR             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    NOT             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    SHL             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    SHR             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    IF              reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    GOTO            reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    HLT             reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    PRINT           reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    CONCAT          reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    LENGTH          reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    SUBSTR          reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+    $end            reduce using rule 31 (string_command -> SUBSTR operand COMMA operand COMMA operand .)
+
