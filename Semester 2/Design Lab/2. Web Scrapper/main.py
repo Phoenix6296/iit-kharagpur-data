@@ -3,6 +3,9 @@ import sqlite3
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # Load the .env file
 load_dotenv()
@@ -68,6 +71,25 @@ class AsteroidData:
         self.c.execute("SELECT name, min_diameter, max_diameter, velocity FROM asteroid_data WHERE hazardous = 1")
         return self.c.fetchall()
 
+class AsteroidDataVisualizer:
+    #Visulaize the top 5 fastest asteroids
+    def visualize_top_5_fastest_asteroids(self, data):
+        df = pd.DataFrame(data, columns=["Name", "Velocity", "Hazardous"])
+        sns.barplot(x="Velocity", y="Name", hue="Hazardous", data=df)
+        plt.title("Top 5 Fastest Asteroids")
+        plt.xlabel("Velocity (km/h)")
+        plt.ylabel("Name")
+        plt.savefig("top_5_fastest_asteroids.png")
+
+    #Visualize the hazardous asteroids
+    def visualize_hazardous_asteroids(self, data):
+        df = pd.DataFrame(data, columns=["Name", "Min Diameter", "Max Diameter", "Velocity"])
+        sns.scatterplot(x="Min Diameter", y="Max Diameter", hue="Velocity", data=df)
+        plt.title("Hazardous Asteroids")
+        plt.xlabel("Min Diameter (km)")
+        plt.ylabel("Max Diameter (km)")
+        plt.savefig("hazardous_asteroids.png")
+
 # Utility functions
 def validate_date(date_str):
     """Validate the format of a date string."""
@@ -102,15 +124,26 @@ if __name__ == "__main__":
         asteroid_data.create_table()
         asteroid_data.store_data_in_db(data)
         
-        print("\nTop 5 Fastest Asteroids:")
+        #Print the headings
+        print("Top 5 Fastest Asteroids")
+        print("Name\tVelocity\tHazardous")
         for asteroid in asteroid_data.display_top_5_fastest_asteroids():
-            print(f"Name: {asteroid[0]}, Velocity: {float(asteroid[1]):.2f} km/h, Hazardous: {'Yes' if asteroid[2] else 'No'}")
-
-        print("\nHazardous Asteroids:")
+            print(f"{asteroid[0]}\t{asteroid[1]}\t{asteroid[2]}")
+        
+        print("\nHazardous Asteroids")
+        print("Name\tMin Diameter\tMax Diameter\tVelocity")
         for asteroid in asteroid_data.display_hazardous_asteroids():
-            print(f"Name: {asteroid[0]}, Min Diameter: {asteroid[1]:.2f} km, Max Diameter: {asteroid[2]:.2f} km, Velocity: {float(asteroid[3]):.2f} km/h")
+            print(f"{asteroid[0]}\t{asteroid[1]}\t{asteroid[2]}\t{asteroid[3]}")
 
+        # Visualize the data
+        visualizer = AsteroidDataVisualizer()
+        visualizer.visualize_top_5_fastest_asteroids(asteroid_data.display_top_5_fastest_asteroids())
+        visualizer.visualize_hazardous_asteroids(asteroid_data.display_hazardous_asteroids())
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error: {e}")
+    except sqlite3.Error as se:
+        print(f"SQLite Error: {se}")
     except ValueError as ve:
-        print(f"Value Error: {ve}")
+        print(f"Error: {ve}")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"An error occurred: {e}")
