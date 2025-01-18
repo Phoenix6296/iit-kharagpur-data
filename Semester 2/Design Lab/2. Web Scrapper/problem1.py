@@ -1,22 +1,15 @@
 import requests
 import sqlite3
 import os
-from dotenv import load_dotenv
 from datetime import datetime
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Load the .env file
-load_dotenv()
-
 # Access the API key and other configurations from the environment variables
-API_KEY = os.getenv("API_KEY")
-API_URL = os.getenv("API_URL")
-DB_NAME = os.getenv("DB_NAME")
-
-if not API_KEY or not API_URL:
-    raise EnvironmentError("API_KEY, API_URL, or DB_NAME not found in environment variables.")
+API_KEY = "1ovqGBfmg4qwKJ7j3aDtayK2f6Ts7fdJCi3EPiZJ"
+API_URL = "https://api.nasa.gov/neo/rest/v1/feed"
+DB_NAME = "asteroid_data.db"
 
 class AsteroidData:
     def __init__(self, start_date, end_date):
@@ -41,7 +34,7 @@ class AsteroidData:
                 name TEXT,
                 min_diameter REAL,
                 max_diameter REAL,
-                hazardous INTEGER,
+                hazardous BOOLEAN,
                 close_approach_date TEXT,
                 velocity REAL
             )
@@ -52,11 +45,11 @@ class AsteroidData:
         for date, asteroids in data["near_earth_objects"].items():
             for asteroid in asteroids:
                 name = asteroid["name"]
-                min_diameter = asteroid["estimated_diameter"]["kilometers"]["estimated_diameter_min"]
-                max_diameter = asteroid["estimated_diameter"]["kilometers"]["estimated_diameter_max"]
-                hazardous = 1 if asteroid["is_potentially_hazardous_asteroid"] else 0
+                min_diameter = asteroid["estimated_diameter"]["meters"]["estimated_diameter_min"]
+                max_diameter = asteroid["estimated_diameter"]["meters"]["estimated_diameter_max"]
+                hazardous = asteroid["is_potentially_hazardous_asteroid"]
                 close_approach_date = asteroid["close_approach_data"][0]["close_approach_date"]
-                velocity = asteroid["close_approach_data"][0]["relative_velocity"]["kilometers_per_hour"]
+                velocity = asteroid["close_approach_data"][0]["relative_velocity"]["kilometers_per_second"]
                 self.c.execute("""
                     INSERT INTO asteroid_data (name, min_diameter, max_diameter, hazardous, close_approach_date, velocity)
                     VALUES (?, ?, ?, ?, ?, ?)
@@ -71,24 +64,28 @@ class AsteroidData:
         self.c.execute("SELECT name, min_diameter, max_diameter, velocity FROM asteroid_data WHERE hazardous = 1")
         return self.c.fetchall()
 
-class AsteroidDataVisualizer:
-    #Visulaize the top 5 fastest asteroids
+
+    #Visiualization
     def visualize_top_5_fastest_asteroids(self, data):
         df = pd.DataFrame(data, columns=["Name", "Velocity", "Hazardous"])
-        sns.barplot(x="Velocity", y="Name", hue="Hazardous", data=df)
+        sns.barplot(x="Velocity", y="Name", data=df, hue="Hazardous")
         plt.title("Top 5 Fastest Asteroids")
         plt.xlabel("Velocity (km/h)")
-        plt.ylabel("Name")
+        plt.ylabel("Asteroid Name")
         plt.savefig("top_5_fastest_asteroids.png")
+        plt.close()
 
-    #Visualize the hazardous asteroids
-    def visualize_hazardous_asteroids(self, data):
-        df = pd.DataFrame(data, columns=["Name", "Min Diameter", "Max Diameter", "Velocity"])
-        sns.scatterplot(x="Min Diameter", y="Max Diameter", hue="Velocity", data=df)
-        plt.title("Hazardous Asteroids")
-        plt.xlabel("Min Diameter (km)")
-        plt.ylabel("Max Diameter (km)")
-        plt.savefig("hazardous_asteroids.png")
+    def visualize_velocity_vs_diameter(self):
+        self.c.execute("SELECT max_diameter, velocity FROM asteroid_data")
+        data = self.c.fetchall()
+        df = pd.DataFrame(data, columns=["Max Diameter", "Velocity"])
+        df["Max Diameter"] = pd.to_numeric(df["Max Diameter"])
+        df["Velocity"] = pd.to_numeric(df["Velocity"])
+        sns.scatterplot(x="Velocity", y="Max Diameter", hue="Max Diameter", data=df)
+        plt.xlabel("Velocity (km/s)")
+        plt.ylabel("Maximal Diameter (m)")
+        plt.savefig("velocity_vs_diameter.png")
+        plt.close()
 
 # Utility functions
 def validate_date(date_str):
@@ -136,9 +133,8 @@ if __name__ == "__main__":
             print(f"{asteroid[0]}\t{asteroid[1]}\t{asteroid[2]}\t{asteroid[3]}")
 
         # Visualize the data
-        visualizer = AsteroidDataVisualizer()
-        visualizer.visualize_top_5_fastest_asteroids(asteroid_data.display_top_5_fastest_asteroids())
-        visualizer.visualize_hazardous_asteroids(asteroid_data.display_hazardous_asteroids())
+        asteroid_data.visualize_top_5_fastest_asteroids(asteroid_data.display_top_5_fastest_asteroids())
+        asteroid_data.visualize_velocity_vs_diameter()
     except requests.exceptions.HTTPError as e:
         print(f"HTTP Error: {e}")
     except sqlite3.Error as se:
