@@ -1,1 +1,3 @@
-asteroid_data.db
+#File name ending with .db
+*.db
+*.png

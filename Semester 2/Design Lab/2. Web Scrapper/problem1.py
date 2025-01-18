@@ -68,11 +68,13 @@ class AsteroidData:
     #Visiualization
     def visualize_top_5_fastest_asteroids(self, data):
         df = pd.DataFrame(data, columns=["Name", "Velocity", "Hazardous"])
-        sns.barplot(x="Velocity", y="Name", data=df, hue="Hazardous")
-        plt.title("Top 5 Fastest Asteroids")
-        plt.xlabel("Velocity (km/h)")
-        plt.ylabel("Asteroid Name")
-        plt.savefig("top_5_fastest_asteroids.png")
+        plt.figure(figsize=(12, 6))
+        ax = sns.barplot(x="Name", y="Velocity", data=df, hue="Hazardous")
+        ax.set_title("Top 5 Fastest Asteroids", fontsize=14)
+        ax.set_xlabel("Asteroid Name", fontsize=12)
+        ax.set_ylabel("Velocity (km/s)", fontsize=12)
+        plt.xticks(rotation=45, ha="right", fontsize=10)
+        plt.savefig("top_5_fastest_asteroids.png", bbox_inches="tight")
         plt.close()
 
     def visualize_velocity_vs_diameter(self):
