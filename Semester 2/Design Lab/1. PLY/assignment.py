@@ -16,7 +16,7 @@ def t_OPCODE(t):
     return t
 
 def t_GOTO(t):
-    r'GOTO'
+    r'GOTO' 
     return t
 
 def t_IF(t):
@@ -291,7 +291,7 @@ L11 $$$ PRINT C
 L12 $$$ HLT
 """
 lexer = lex.lex()
-lexer.input(program)
+# lexer.input(program)
 # for tok in lexer:
 #     print(tok)
 
