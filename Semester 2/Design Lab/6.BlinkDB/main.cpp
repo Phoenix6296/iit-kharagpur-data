@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <list>
 #include <fstream>
+#include <cstdlib>
 #include <sstream>
 
 using namespace std;
@@ -17,43 +18,39 @@ private:
 public:
     BlinkDB(size_t cap = 100) : capacity(cap)
     {
-        loadFromFile(); // Load data from disk on startup
+        remove(filename.c_str()); // Delete AOF file on startup
+        loadFromFile();           // Load data from disk
+        atexit(deleteAOF);        // Register AOF deletion on exit
     }
 
     void set(const string &key, const string &value)
     {
-        // If key exists, update value and move to front
         if (kv_store.find(key) != kv_store.end())
         {
             kv_store[key].first = value;
             lru_order.erase(kv_store[key].second);
         }
-        // If at capacity, evict LRU key
         else if (kv_store.size() >= capacity)
         {
             string lru_key = lru_order.back();
             lru_order.pop_back();
             kv_store.erase(lru_key);
-            flushToDisk(lru_key); // Write evicted key to disk
+            flushToDisk(lru_key);
         }
-        // Insert key-value pair
         lru_order.push_front(key);
         kv_store[key] = {value, lru_order.begin()};
-        appendToFile("SET " + key + " " + value); // Save operation to log
+        appendToFile("SET " + key + " " + value);
     }
 
     string get(const string &key)
     {
         if (kv_store.find(key) != kv_store.end())
         {
-            // Move key to front (most recently used)
             lru_order.erase(kv_store[key].second);
             lru_order.push_front(key);
             kv_store[key].second = lru_order.begin();
             return kv_store[key].first;
         }
-
-        // Try retrieving from disk if not found in memory
         return loadFromDisk(key);
     }
 
@@ -63,7 +60,7 @@ public:
         {
             lru_order.erase(kv_store[key].second);
             kv_store.erase(key);
-            appendToFile("DEL " + key); // Log deletion
+            appendToFile("DEL " + key);
         }
         else
         {
@@ -74,7 +71,7 @@ public:
     void runREPL()
     {
         string input;
-        cout << "BLINK DB Started. Enter commands (SET, GET, DEL)." << endl;
+        cout << "BLINK DB Started. Enter commands (SET, GET, DEL, EXIT)." << endl;
 
         while (true)
         {
@@ -83,11 +80,16 @@ public:
             if (input.empty())
                 continue;
 
+            if (input == "EXIT")
+            {
+                cout << "Exiting BLINK DB..." << endl;
+                break; // Exit the loop
+            }
+
             stringstream ss(input);
             string command, key, value;
             ss >> command >> key;
 
-            // Count remaining arguments
             string extra;
             if (command == "SET")
             {
@@ -102,7 +104,7 @@ public:
             else if (command == "GET" || command == "DEL")
             {
                 if (ss >> extra)
-                { // If more than 2 tokens, it's an error
+                {
                     cout << "Error: " << command << " requires only a key.\n";
                     continue;
                 }
@@ -113,19 +115,12 @@ public:
                 continue;
             }
 
-            // Execute commands
             if (command == "SET")
-            {
                 set(key, value);
-            }
             else if (command == "GET")
-            {
                 cout << get(key) << endl;
-            }
             else if (command == "DEL")
-            {
                 del(key);
-            }
         }
     }
 
@@ -159,19 +154,18 @@ private:
                 if (stored_key == key)
                 {
                     file.close();
-                    set(stored_key, stored_value); // Load back into memory
+                    set(stored_key, stored_value);
                     return stored_value;
                 }
             }
             else if (cmd == "DEL" && stored_key == key)
             {
                 file.close();
-                return "NULL"; // Key was deleted
+                return "NULL";
             }
         }
-
         file.close();
-        return "NULL"; // Key not found
+        return "NULL";
     }
 
     void loadFromFile()
@@ -203,11 +197,16 @@ private:
     {
         appendToFile("FLUSH " + key);
     }
+
+    static void deleteAOF()
+    {
+        remove("blinkdb.aof");
+    }
 };
 
 int main()
 {
-    BlinkDB db(5); // Small capacity for testing eviction
+    BlinkDB db(5);
     db.runREPL();
     return 0;
 }
