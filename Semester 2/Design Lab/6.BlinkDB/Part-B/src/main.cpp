@@ -170,6 +170,7 @@ private:
             throw runtime_error("listen failed");
 
         fcntl(server_fd, F_SETFL, O_NONBLOCK);
+        cout << "BlinkDB Server started on port " << PORT << endl;
     }
 
     void setupKqueue()
@@ -220,7 +221,7 @@ private:
         EV_SET(&ev, client_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
         kevent(kq, &ev, 1, NULL, 0, NULL);
 
-        clients[client_fd] = {client_fd};
+        clients[client_fd] = {client_fd, "", ""};
     }
 
     void handleClientEvent(int fd)
