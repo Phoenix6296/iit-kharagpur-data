@@ -2,7 +2,6 @@
 #include <unordered_map>
 #include <list>
 #include <fstream>
-#include <cstdlib>
 #include <sstream>
 
 using namespace std;
@@ -24,7 +23,6 @@ public:
     ~BlinkDB()
     {
         remove(filename.c_str());
-        cout << "AOF file deleted." << endl;
     }
 
     void set(const string &key, const string &value)
@@ -175,11 +173,6 @@ private:
     void flushToDisk(const string &key)
     {
         appendToFile("FLUSH " + key);
-    }
-
-    static void deleteAOF()
-    {
-        remove("blinkdb.aof");
     }
 };
 
