@@ -19,8 +19,12 @@ public:
     BlinkDB(size_t cap = 100) : capacity(cap)
     {
         remove(filename.c_str());
-        loadFromFile();
-        atexit(deleteAOF);
+    }
+
+    ~BlinkDB()
+    {
+        remove(filename.c_str());
+        cout << "AOF file deleted." << endl;
     }
 
     void set(const string &key, const string &value)
@@ -166,31 +170,6 @@ private:
         }
         file.close();
         return "NULL";
-    }
-
-    void loadFromFile()
-    {
-        ifstream file(filename);
-        if (!file.is_open())
-            return;
-
-        string line, cmd, stored_key, stored_value;
-        while (getline(file, line))
-        {
-            stringstream ss(line);
-            ss >> cmd >> stored_key;
-            if (cmd == "SET")
-            {
-                ss.ignore();
-                getline(ss, stored_value);
-                set(stored_key, stored_value);
-            }
-            else if (cmd == "DEL")
-            {
-                del(stored_key);
-            }
-        }
-        file.close();
     }
 
     void flushToDisk(const string &key)
