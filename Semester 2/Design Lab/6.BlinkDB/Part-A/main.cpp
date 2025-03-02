@@ -10,17 +10,17 @@ using namespace std;
 class BlinkDB
 {
 private:
-    size_t capacity; // Maximum in-memory capacity
+    size_t capacity;
     unordered_map<string, pair<string, list<string>::iterator>> kv_store;
-    list<string> lru_order;                // LRU order list
-    const string filename = "blinkdb.aof"; // Persistence file
+    list<string> lru_order;
+    const string filename = "blinkdb.aof";
 
 public:
     BlinkDB(size_t cap = 100) : capacity(cap)
     {
-        remove(filename.c_str()); // Delete AOF file on startup
-        loadFromFile();           // Load data from disk
-        atexit(deleteAOF);        // Register AOF deletion on exit
+        remove(filename.c_str());
+        loadFromFile();
+        atexit(deleteAOF);
     }
 
     void set(const string &key, const string &value)
@@ -83,7 +83,7 @@ public:
             if (input == "EXIT")
             {
                 cout << "Exiting BLINK DB..." << endl;
-                break; // Exit the loop
+                break;
             }
 
             stringstream ss(input);
