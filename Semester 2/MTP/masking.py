@@ -1,5 +1,6 @@
 import os
 import csv
+import lib
 import ast
 import ollama
 
@@ -10,8 +11,8 @@ HYBRID_CSV_DIR = os.path.join(BASE_DIR, "Hybrid_CSV")
 # Ensure Hybrid_CSV directory exists
 os.makedirs(HYBRID_CSV_DIR, exist_ok=True)
 
+# Extracts functions from the given Python code and returns a list of (name, code, start, end).
 def extract_functions(code):
-    """Extracts functions from the given Python code and returns a list of (name, code, start, end)."""
     functions = []
     try:
         tree = ast.parse(code)
@@ -25,14 +26,14 @@ def extract_functions(code):
         print(f"Error parsing code: {e}")
     return functions
 
+# Replaces the function definition with a masked version.
 def mask_function(code, start_line, end_line):
-    """Replaces the function definition with a masked version."""
     lines = code.splitlines()
     masked_code = lines[:start_line] + ["def MASKED_FUNCTION(...):\n    pass"] + lines[end_line:]
     return "\n".join(masked_code)
 
+# Uses Ollama to predict the function name.
 def predict_function_name(masked_code):
-    """Uses Ollama to predict the function name."""
     prompt = f"Given the following Python code with a masked function:\n\n{masked_code}\n\nPredict the function name:"
     try:
         response = ollama.chat(model="deepseek-r1", messages=[{"role": "user", "content": prompt}])
@@ -41,8 +42,8 @@ def predict_function_name(masked_code):
         print(f"Error in Ollama prediction: {e}")
         return "UNKNOWN_FUNCTION"
 
+# Processes all CSV files in Extracted_CSV.
 def process_csv_files():
-    """Processes all CSV files in Extracted_CSV."""
     for csv_file in os.listdir(EXTRACTED_CSV_DIR):
         if not csv_file.endswith(".csv"):
             continue
