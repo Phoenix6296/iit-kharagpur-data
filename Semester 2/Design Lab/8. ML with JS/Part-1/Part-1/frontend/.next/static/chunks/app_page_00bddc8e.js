@@ -88,9 +88,8 @@ function Home() {
     const [inputText, setInputText] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const [prediction, setPrediction] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [isTraining, setIsTraining] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [trainedModel, setTrainedModel] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    // Convert trainLabels to a proper matrix or a plain array
-    const tfidf = new TFIDF();
+    const [trainedModels, setTrainedModels] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
+    const [selectedModelType, setSelectedModelType] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const handleFileUpload = (event)=>{
         setFile(event.target.files[0]);
     };
@@ -119,9 +118,8 @@ function Home() {
             alert("No valid data found in the CSV.");
             return;
         }
-        console.log("Tweets:", tweets);
-        console.log("Labels:", labels);
         // Apply TF-IDF transformation
+        const tfidf = new TFIDF();
         tfidf.fit(tweets);
         const transformedData = tweets.map((text)=>tfidf.transform(text));
         // Shuffle dataset
@@ -140,14 +138,15 @@ function Home() {
             trainData,
             trainLabels,
             testData,
-            testLabels
+            testLabels,
+            tfidf
         };
     };
     const trainModel = async (event)=>{
         event.preventDefault();
         if (!file) return;
         setIsTraining(true);
-        const { trainData, trainLabels, testData, testLabels } = await preprocessData(file);
+        const { trainData, trainLabels, testData, testLabels, tfidf } = await preprocessData(file);
         // Convert trainLabels to a proper matrix or a plain array
         const numericLabels = trainLabels.map((label)=>label === "real" ? 1 : 0);
         let model;
@@ -172,8 +171,14 @@ function Home() {
             default:
                 return;
         }
-        // Save the trained model
-        setTrainedModel(model);
+        // Save the trained model with its TF-IDF
+        setTrainedModels((prev)=>({
+                ...prev,
+                [modelType]: {
+                    model,
+                    tfidf
+                }
+            }));
         // Generate predictions on test set
         const predictions = testData.map((sample)=>model.predict(sample));
         // Compute metrics
@@ -200,27 +205,44 @@ function Home() {
         setTrainResult(`Model ${modelType} trained successfully!`);
         setIsTraining(false);
     };
-    // const handlePredict = () => {
-    //   if (!trainedModel || !inputText.trim()) {
-    //     alert("Please train a model and enter text to predict.");
-    //     return;
-    //   }
-    //   try {
-    //     // Transform input text using TF-IDF
-    //     const transformedInput = tfidf.transform(inputText);
-    //     // Make prediction
-    //     const numericPrediction = trainedModel.predict(transformedInput);
-    //     // Convert numeric prediction back to label
-    //     const predictedLabel = numericPrediction === 1 ? "real" : "fake";
-    //     // Set prediction result
-    //     setPrediction(predictedLabel);
-    //   } catch (error) {
-    //     console.error("Prediction error:", error);
-    //     alert(
-    //       "Error making prediction. Make sure you've trained a model with valid data."
-    //     );
-    //   }
-    // };
+    const handlePredict = ()=>{
+        if (!inputText.trim()) {
+            alert("Please enter some text.");
+            return;
+        }
+        const modelData = trainedModels[selectedModelType];
+        if (!modelData) {
+            alert("Please train the selected model first.");
+            return;
+        }
+        const { model, tfidf } = modelData;
+        const vector = tfidf.transform(inputText);
+        let prediction;
+        try {
+            switch(selectedModelType){
+                case "knn":
+                    prediction = model.predict(vector);
+                    break;
+                case "logistic_regression":
+                    prediction = model.predict(new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$ml$2d$matrix$2f$matrix$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Matrix"]([
+                        vector
+                    ]))[0];
+                    break;
+                case "random_forest":
+                case "decision_tree":
+                    prediction = model.predict([
+                        vector
+                    ])[0];
+                    break;
+                default:
+                    throw new Error("Unknown model type");
+            }
+            setPrediction(prediction === 1 ? "real" : "fake");
+        } catch (error) {
+            console.error("Prediction error:", error);
+            alert("Prediction failed. Please try again.");
+        }
+    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "p-6 flex flex-col items-center",
         children: [
@@ -232,7 +254,7 @@ function Home() {
                         children: "Train a Model"
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 250,
+                        lineNumber: 263,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -246,7 +268,7 @@ function Home() {
                                 className: "block w-full text-gray-700 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-blue-200 focus:outline-none"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 254,
+                                lineNumber: 267,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -259,7 +281,7 @@ function Home() {
                                         children: "KNN"
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 265,
+                                        lineNumber: 278,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -267,7 +289,7 @@ function Home() {
                                         children: "Logistic Regression"
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 266,
+                                        lineNumber: 279,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -275,7 +297,7 @@ function Home() {
                                         children: "Random Forest"
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 267,
+                                        lineNumber: 280,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -283,13 +305,13 @@ function Home() {
                                         children: "Decision Tree"
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 268,
+                                        lineNumber: 281,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 260,
+                                lineNumber: 273,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -299,13 +321,13 @@ function Home() {
                                 children: isTraining ? "Training..." : "Train"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 270,
+                                lineNumber: 283,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 253,
+                        lineNumber: 266,
                         columnNumber: 9
                     }, this),
                     trainResult && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -313,13 +335,112 @@ function Home() {
                         children: trainResult
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 283,
+                        lineNumber: 296,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 249,
+                lineNumber: 262,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "bg-white shadow-lg rounded-lg p-6 w-full max-w-md mt-6",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                        className: "text-xl font-semibold text-gray-700 mb-4",
+                        children: "Make a Prediction"
+                    }, void 0, false, {
+                        fileName: "[project]/app/page.js",
+                        lineNumber: 302,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "space-y-4",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                value: selectedModelType,
+                                onChange: (e)=>setSelectedModelType(e.target.value),
+                                className: "block w-full text-gray-700 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-blue-200 focus:outline-none",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                        value: "",
+                                        disabled: true,
+                                        children: "Select a trained model"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 311,
+                                        columnNumber: 13
+                                    }, this),
+                                    Object.keys(trainedModels).map((modelType)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: modelType,
+                                            children: modelType.replace(/_/g, " ").toUpperCase()
+                                        }, modelType, false, {
+                                            fileName: "[project]/app/page.js",
+                                            lineNumber: 315,
+                                            columnNumber: 15
+                                        }, this))
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 306,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
+                                value: inputText,
+                                onChange: (e)=>setInputText(e.target.value),
+                                placeholder: "Enter text to classify...",
+                                className: "block w-full text-gray-700 border border-gray-300 rounded-lg p-2 h-32 focus:ring focus:ring-blue-200 focus:outline-none"
+                            }, void 0, false, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 321,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                onClick: handlePredict,
+                                disabled: !selectedModelType || !trainedModels[selectedModelType],
+                                className: `w-full rounded-lg py-2 font-semibold transition ${!selectedModelType ? "bg-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"}`,
+                                children: "Predict"
+                            }, void 0, false, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 328,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/page.js",
+                        lineNumber: 305,
+                        columnNumber: 9
+                    }, this),
+                    prediction && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mt-4",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "font-semibold text-gray-700",
+                                children: "Prediction Result:"
+                            }, void 0, false, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 342,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: `p-3 mt-2 rounded-lg font-bold text-center ${prediction === "real" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`,
+                                children: prediction.toUpperCase()
+                            }, void 0, false, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 343,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/page.js",
+                        lineNumber: 341,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/app/page.js",
+                lineNumber: 301,
                 columnNumber: 7
             }, this),
             evaluationMetrics && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -330,7 +451,7 @@ function Home() {
                         children: "Model Evaluation Metrics"
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 329,
+                        lineNumber: 359,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("table", {
@@ -345,7 +466,7 @@ function Home() {
                                             children: "Metric"
                                         }, void 0, false, {
                                             fileName: "[project]/app/page.js",
-                                            lineNumber: 335,
+                                            lineNumber: 365,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -353,18 +474,18 @@ function Home() {
                                             children: "Value"
                                         }, void 0, false, {
                                             fileName: "[project]/app/page.js",
-                                            lineNumber: 336,
+                                            lineNumber: 366,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/page.js",
-                                    lineNumber: 334,
+                                    lineNumber: 364,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 333,
+                                lineNumber: 363,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -376,48 +497,48 @@ function Home() {
                                                 children: key
                                             }, void 0, false, {
                                                 fileName: "[project]/app/page.js",
-                                                lineNumber: 342,
+                                                lineNumber: 372,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                 className: "border border-gray-300 p-2 font-semibold",
-                                                children: value.toFixed(4)
+                                                children: typeof value === "number" ? value.toFixed(4) : value
                                             }, void 0, false, {
                                                 fileName: "[project]/app/page.js",
-                                                lineNumber: 343,
+                                                lineNumber: 373,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, key, true, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 341,
+                                        lineNumber: 371,
                                         columnNumber: 17
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 339,
+                                lineNumber: 369,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 332,
+                        lineNumber: 362,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 328,
+                lineNumber: 358,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.js",
-        lineNumber: 248,
+        lineNumber: 260,
         columnNumber: 5
     }, this);
 }
-_s(Home, "Wc6rhmijNqnvXWcvTv3oeEEszzQ=");
+_s(Home, "l7VbXmKNOs6TdIaJm8UFc2FK1qE=");
 _c = Home;
 var _c;
 __turbopack_context__.k.register(_c, "Home");

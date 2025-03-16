@@ -76,10 +76,8 @@ export default function Home() {
   const [inputText, setInputText] = useState("");
   const [prediction, setPrediction] = useState(null);
   const [isTraining, setIsTraining] = useState(false);
-  const [trainedModel, setTrainedModel] = useState(null);
-
-  // Convert trainLabels to a proper matrix or a plain array
-  const tfidf = new TFIDF();
+  const [trainedModels, setTrainedModels] = useState({});
+  const [selectedModelType, setSelectedModelType] = useState("");
 
   const handleFileUpload = (event) => {
     setFile(event.target.files[0]);
@@ -117,10 +115,8 @@ export default function Home() {
       return;
     }
 
-    console.log("Tweets:", tweets);
-    console.log("Labels:", labels);
-
     // Apply TF-IDF transformation
+    const tfidf = new TFIDF();
     tfidf.fit(tweets);
     const transformedData = tweets.map((text) => tfidf.transform(text));
 
@@ -140,7 +136,7 @@ export default function Home() {
     const testData = shuffledData.slice(trainSize + valSize);
     const testLabels = shuffledLabels.slice(trainSize + valSize);
 
-    return { trainData, trainLabels, testData, testLabels };
+    return { trainData, trainLabels, testData, testLabels, tfidf };
   };
 
   const trainModel = async (event) => {
@@ -148,7 +144,7 @@ export default function Home() {
     if (!file) return;
     setIsTraining(true);
 
-    const { trainData, trainLabels, testData, testLabels } =
+    const { trainData, trainLabels, testData, testLabels, tfidf } =
       await preprocessData(file);
 
     // Convert trainLabels to a proper matrix or a plain array
@@ -177,8 +173,11 @@ export default function Home() {
         return;
     }
 
-    // Save the trained model
-    setTrainedModel(model);
+    // Save the trained model with its TF-IDF
+    setTrainedModels((prev) => ({
+      ...prev,
+      [modelType]: { model, tfidf },
+    }));
 
     // Generate predictions on test set
     const predictions = testData.map((sample) => model.predict(sample));
@@ -218,34 +217,48 @@ export default function Home() {
     setIsTraining(false);
   };
 
-  // const handlePredict = () => {
-  //   if (!trainedModel || !inputText.trim()) {
-  //     alert("Please train a model and enter text to predict.");
-  //     return;
-  //   }
+  const handlePredict = () => {
+    if (!inputText.trim()) {
+      alert("Please enter some text.");
+      return;
+    }
 
-  //   try {
-  //     // Transform input text using TF-IDF
-  //     const transformedInput = tfidf.transform(inputText);
+    const modelData = trainedModels[selectedModelType];
+    if (!modelData) {
+      alert("Please train the selected model first.");
+      return;
+    }
 
-  //     // Make prediction
-  //     const numericPrediction = trainedModel.predict(transformedInput);
+    const { model, tfidf } = modelData;
+    const vector = tfidf.transform(inputText);
 
-  //     // Convert numeric prediction back to label
-  //     const predictedLabel = numericPrediction === 1 ? "real" : "fake";
+    let prediction;
+    try {
+      switch (selectedModelType) {
+        case "knn":
+          prediction = model.predict(vector);
+          break;
+        case "logistic_regression":
+          prediction = model.predict(new Matrix([vector]))[0];
+          break;
+        case "random_forest":
+        case "decision_tree":
+          prediction = model.predict([vector])[0];
+          break;
+        default:
+          throw new Error("Unknown model type");
+      }
 
-  //     // Set prediction result
-  //     setPrediction(predictedLabel);
-  //   } catch (error) {
-  //     console.error("Prediction error:", error);
-  //     alert(
-  //       "Error making prediction. Make sure you've trained a model with valid data."
-  //     );
-  //   }
-  // };
+      setPrediction(prediction === 1 ? "real" : "fake");
+    } catch (error) {
+      console.error("Prediction error:", error);
+      alert("Prediction failed. Please try again.");
+    }
+  };
 
   return (
     <div className="p-6 flex flex-col items-center">
+      {/* Training Section */}
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
           Train a Model
@@ -284,23 +297,39 @@ export default function Home() {
         )}
       </div>
 
-      {/* Prediction Input Box */}
-      {/* <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md mt-6">
+      {/* Prediction Section */}
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md mt-6">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
           Make a Prediction
         </h2>
         <div className="space-y-4">
+          <select
+            value={selectedModelType}
+            onChange={(e) => setSelectedModelType(e.target.value)}
+            className="block w-full text-gray-700 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-blue-200 focus:outline-none"
+          >
+            <option value="" disabled>
+              Select a trained model
+            </option>
+            {Object.keys(trainedModels).map((modelType) => (
+              <option key={modelType} value={modelType}>
+                {modelType.replace(/_/g, " ").toUpperCase()}
+              </option>
+            ))}
+          </select>
+
           <textarea
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Enter text to classify..."
             className="block w-full text-gray-700 border border-gray-300 rounded-lg p-2 h-32 focus:ring focus:ring-blue-200 focus:outline-none"
           />
+
           <button
             onClick={handlePredict}
-            disabled={!trainedModel}
+            disabled={!selectedModelType || !trainedModels[selectedModelType]}
             className={`w-full rounded-lg py-2 font-semibold transition ${
-              !trainedModel
+              !selectedModelType
                 ? "bg-gray-500 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
             }`}
@@ -322,8 +351,9 @@ export default function Home() {
             </div>
           </div>
         )}
-      </div> */}
+      </div>
 
+      {/* Evaluation Metrics Section */}
       {evaluationMetrics && (
         <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md mt-6">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">
@@ -341,7 +371,7 @@ export default function Home() {
                 <tr key={key} className="odd:bg-white even:bg-gray-100">
                   <td className="border border-gray-300 p-2">{key}</td>
                   <td className="border border-gray-300 p-2 font-semibold">
-                    {value.toFixed(4)}
+                    {typeof value === "number" ? value.toFixed(4) : value}
                   </td>
                 </tr>
               ))}
