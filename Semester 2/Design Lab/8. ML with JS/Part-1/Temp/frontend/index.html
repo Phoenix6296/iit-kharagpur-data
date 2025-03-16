@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Analyzer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Data Analyzer</h1>
+
+      <!-- File Upload Form -->
+      <form id="uploadForm">
+        <input type="file" id="file_input" accept=".csv" required />
+
+        <!-- Model Selection Dropdown -->
+        <select id="model_select" required>
+          <option value="">Select Model</option>
+          <option value="knn">K-Nearest Neighbors</option>
+          <option value="logistic-regression">Logistic Regression</option>
+          <option value="random-forest">Random Forest</option>
+          <option value="kmeans">K-Means Clustering</option>
+          <option value="neural-network">Neural Network</option>
+          <option value="decision-tree">Decision Tree</option>
+        </select>
+
+        <button type="submit">Train Model</button>
+      </form>
+
+      <!-- Prediction Input -->
+      <input type="text" id="input_text" placeholder="Enter text to predict" />
+      <button onclick="predictText()">Predict</button>
+
+      <div id="output"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
