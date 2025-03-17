@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fake News Classifier</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Fake News Classifier</h1>
+
+    <div class="container">
+      <h2>Upload Dataset</h2>
+      <form id="uploadForm" enctype="multipart/form-data">
+        <div class="upload-area">
+          <p>
+            Upload your CSV file containing social media posts and labels (0:
+            fake, 1: real)
+          </p>
+          <input type="file" id="csvFile" name="csvFile" accept=".csv" />
+        </div>
+        <div class="model-select">
+          <label for="model">Select Model:</label>
+          <select id="model" name="model">
+            <option value="knn">KNN</option>
+            <option value="logistic_regression">Logistic Regression</option>
+            <option value="random_forest">Random Forest</option>
+            <option value="decision_Tree">Decision Tree</option>
+            <option value="Kmeans_cluster">K Means</option>
+            <option value="neural_network">Neural Networks</option>
+          </select>
+        </div>
+        <button type="submit">Train</button>
+      </form>
+    </div>
+
+    <div
+      class="progress-container"
+      id="progressContainer"
+      style="display: none"
+    >
+      <p>Processing data...</p>
+      <div class="progress-bar">
+        <div class="progress" id="progressBar"></div>
+      </div>
+      <p id="progressText">0%</p>
+    </div>
+
+    <div class="container results" id="resultsContainer" style="display: none">
+      <h2>Classification Results</h2>
+      <div class="metrics">
+        <div class="metric-box">
+          <h3>Accuracy</h3>
+          <p id="accuracy">-</p>
+        </div>
+        <div class="metric-box">
+          <h3>Precision</h3>
+          <p id="precision">-</p>
+        </div>
+        <div class="metric-box">
+          <h3>Recall</h3>
+          <p id="recall">-</p>
+        </div>
+      </div>
+
+      <h3>Classification Report</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1-Score</th>
+            <th>Support</th>
+          </tr>
+        </thead>
+        <tbody id="reportBody"></tbody>
+      </table>
+    </div>
+    <div class="container prediction" id="predictionContainer">
+      <h2>Predict New Text</h2>
+      <textarea
+        id="predictionInput"
+        rows="4"
+        placeholder="Enter text to predict..."
+      ></textarea>
+      <button id="predictBtn">Predict</button>
+      <div id="predictionResult" style="display: none">
+        <h3>Prediction Result</h3>
+        <p>Classification: <span id="predictionClass"></span></p>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          const modelType = document.getElementById("model").value;
+          formData.append("model", modelType);
+          fetch("/upload", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
+
+            //.then(response => response.json())
+            .then((data) => {
+              console.log("Upload successful:", data);
+              // Update UI with results
+              document.getElementById("accuracy").textContent = data.accuracy;
+              document.getElementById("precision").textContent = data.precision;
+              document.getElementById("recall").textContent = data.recall;
+
+              const reportBody = document.getElementById("reportBody");
+              reportBody.innerHTML = "";
+              for (const [className, metrics] of Object.entries(
+                data.classReport
+              )) {
+                const row = reportBody.insertRow();
+                row.insertCell().textContent = className;
+                row.insertCell().textContent =
+                  (metrics.precision * 100).toFixed(2) + "%";
+                row.insertCell().textContent =
+                  (metrics.recall * 100).toFixed(2) + "%";
+                row.insertCell().textContent =
+                  (metrics.f1Score * 100).toFixed(2) + "%";
+                row.insertCell().textContent = metrics.support;
+              }
+
+              document.getElementById("resultsContainer").style.display =
+                "block";
+            })
+            .catch((error) => {
+              console.error("Error during upload:", error.message);
+            });
+        });
+
+      document
+        .getElementById("predictBtn")
+        .addEventListener("click", function () {
+          const text = document.getElementById("predictionInput").value;
+          if (!text) {
+            alert("Please enter text to predict");
+            return;
+          }
+
+          fetch("/predict", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text: text }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("predictionClass").textContent =
+                data.label;
+              document.getElementById("predictionResult").style.display =
+                "block";
+            })
+            .catch((error) => {
+              console.error("Error during prediction:", error.message);
+              alert("Error during prediction: " + error.message);
+            });
+        });
+    </script>
+  </body>
+</html>
