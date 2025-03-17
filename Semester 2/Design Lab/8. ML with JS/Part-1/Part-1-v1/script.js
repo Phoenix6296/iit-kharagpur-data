@@ -1,18 +1,44 @@
 document.getElementById("uploadForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const formData = new FormData(this);
+  const modelType = document.getElementById("model").value;
+  formData.append("model", modelType);
   fetch("/upload", {
     method: "POST",
     body: formData,
   })
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+
+    //.then(response => response.json())
     .then((data) => {
+      console.log("Upload successful:", data);
+      // Update UI with results
       document.getElementById("accuracy").textContent = data.accuracy;
       document.getElementById("precision").textContent = data.precision;
       document.getElementById("recall").textContent = data.recall;
+
+      const reportBody = document.getElementById("reportBody");
+      reportBody.innerHTML = "";
+      for (const [className, metrics] of Object.entries(data.classReport)) {
+        const row = reportBody.insertRow();
+        row.insertCell().textContent = className;
+        row.insertCell().textContent =
+          (metrics.precision * 100).toFixed(2) + "%";
+        row.insertCell().textContent = (metrics.recall * 100).toFixed(2) + "%";
+        row.insertCell().textContent = (metrics.f1Score * 100).toFixed(2) + "%";
+        row.insertCell().textContent = metrics.support;
+      }
+
       document.getElementById("resultsContainer").style.display = "block";
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => {
+      console.error("Error during upload:", error.message);
+    });
 });
 
 document.getElementById("predictBtn").addEventListener("click", function () {
@@ -21,9 +47,12 @@ document.getElementById("predictBtn").addEventListener("click", function () {
     alert("Please enter text to predict");
     return;
   }
+
   fetch("/predict", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ text: text }),
   })
     .then((response) => response.json())
@@ -31,5 +60,8 @@ document.getElementById("predictBtn").addEventListener("click", function () {
       document.getElementById("predictionClass").textContent = data.label;
       document.getElementById("predictionResult").style.display = "block";
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => {
+      console.error("Error during prediction:", error.message);
+      alert("Error during prediction: " + error.message);
+    });
 });

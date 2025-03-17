@@ -17,14 +17,12 @@ let kmeansTrainLabels;
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
-//app.use(express.static('public'));
 app.use(express.static(__dirname));
 
 // Global variables
 let trainData, valData, testData;
 let trainLabels, valLabels, testLabels;
 let tfidfVectorizer;
-let knnModel;
 let model;
 let modelType;
 
