@@ -15,7 +15,7 @@
 
 using namespace std;
 
-#define PORT 9001
+#define PORT 9000
 #define MAX_EVENTS 1024
 #define BUFFER_SIZE 4096
 
