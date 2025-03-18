@@ -148,7 +148,6 @@ private:
         if (!file.is_open())
             return "NULL";
 
-        // Process every line to determine the most recent command for the key
         while (getline(file, line))
         {
             stringstream ss(line);
@@ -161,7 +160,7 @@ private:
                     getline(ss, stored_value);
                     last_value = stored_value;
                     found = true;
-                    deleted = false; // Overwrite any previous deletion
+                    deleted = false;
                 }
                 else if (cmd == "DEL")
                 {
