@@ -141,32 +141,44 @@ private:
     {
         ifstream file(filename);
         string line, cmd, stored_key, stored_value;
+        string last_value;
+        bool found = false;
+        bool deleted = false;
 
         if (!file.is_open())
             return "NULL";
 
+        // Process every line to determine the most recent command for the key
         while (getline(file, line))
         {
             stringstream ss(line);
             ss >> cmd >> stored_key;
-            if (cmd == "SET")
+            if (stored_key == key)
             {
-                ss.ignore();
-                getline(ss, stored_value);
-                if (stored_key == key)
+                if (cmd == "SET")
                 {
-                    file.close();
-                    set(stored_key, stored_value);
-                    return stored_value;
+                    ss.ignore();
+                    getline(ss, stored_value);
+                    last_value = stored_value;
+                    found = true;
+                    deleted = false; // Overwrite any previous deletion
                 }
-            }
-            else if (cmd == "DEL" && stored_key == key)
-            {
-                file.close();
-                return "NULL";
+                else if (cmd == "DEL")
+                {
+                    found = true;
+                    deleted = true;
+                }
             }
         }
         file.close();
+
+        if (found && !deleted)
+        {
+            // Load the key back into memory without re-appending to disk.
+            lru_order.push_front(key);
+            kv_store[key] = {last_value, lru_order.begin()};
+            return last_value;
+        }
         return "NULL";
     }
 
