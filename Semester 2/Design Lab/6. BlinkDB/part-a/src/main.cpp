@@ -1,3 +1,12 @@
+/**
+ * @file BlinkDB.cpp
+ * @brief BlinkDB - A lightweight key-value store with LRU eviction and AOF persistence.
+ *
+ * This file implements BlinkDB, a simple in-memory key-value database that supports
+ * basic operations like SET, GET, and DEL with persistence via an append-only file (AOF).
+ * It uses an LRU eviction policy when the cache reaches its capacity.
+ */
+
 #include <iostream>
 #include <unordered_map>
 #include <list>
@@ -6,25 +15,41 @@
 
 using namespace std;
 
+/**
+ * @class BlinkDB
+ * @brief Implements a simple key-value store with LRU eviction and AOF persistence.
+ */
 class BlinkDB
 {
 private:
-    size_t capacity;
-    unordered_map<string, pair<string, list<string>::iterator>> kv_store;
-    list<string> lru_order;
-    const string filename = "blinkdb.aof";
+    size_t capacity;                                                      ///< Maximum number of key-value pairs that can be stored in memory.
+    unordered_map<string, pair<string, list<string>::iterator>> kv_store; ///< In-memory key-value store.
+    list<string> lru_order;                                               ///< Maintains LRU ordering of keys.
+    const string filename = "blinkdb.aof";                                ///< Name of the AOF persistence file.
 
 public:
+    /**
+     * @brief Constructor that initializes the database with a given capacity.
+     * @param cap The maximum number of entries allowed in memory (default: 100).
+     */
     BlinkDB(size_t cap = 100) : capacity(cap)
     {
         remove(filename.c_str());
     }
 
+    /**
+     * @brief Destructor that ensures clean-up of resources.
+     */
     ~BlinkDB()
     {
         remove(filename.c_str());
     }
 
+    /**
+     * @brief Sets a key-value pair in the database.
+     * @param key The key to store.
+     * @param value The value associated with the key.
+     */
     void set(const string &key, const string &value)
     {
         if (kv_store.find(key) != kv_store.end())
@@ -44,6 +69,11 @@ public:
         appendToFile("SET " + key + " " + value);
     }
 
+    /**
+     * @brief Retrieves the value associated with a key.
+     * @param key The key to retrieve.
+     * @return The value associated with the key, or "NULL" if the key is not found.
+     */
     string get(const string &key)
     {
         if (kv_store.find(key) != kv_store.end())
@@ -56,6 +86,10 @@ public:
         return loadFromDisk(key);
     }
 
+    /**
+     * @brief Deletes a key-value pair from the database.
+     * @param key The key to delete.
+     */
     void del(const string &key)
     {
         if (kv_store.find(key) != kv_store.end())
@@ -70,6 +104,9 @@ public:
         }
     }
 
+    /**
+     * @brief Runs a simple REPL (Read-Eval-Print Loop) for BlinkDB.
+     */
     void runREPL()
     {
         string input;
@@ -127,6 +164,10 @@ public:
     }
 
 private:
+    /**
+     * @brief Appends a command to the append-only file (AOF) for persistence.
+     * @param command The command to append.
+     */
     void appendToFile(const string &command)
     {
         ofstream file(filename, ios::app);
@@ -137,6 +178,11 @@ private:
         }
     }
 
+    /**
+     * @brief Loads a key's value from disk if not found in memory.
+     * @param key The key to retrieve.
+     * @return The value if found on disk, otherwise "NULL".
+     */
     string loadFromDisk(const string &key)
     {
         ifstream file(filename);
@@ -173,7 +219,6 @@ private:
 
         if (found && !deleted)
         {
-            // Load the key back into memory without re-appending to disk.
             lru_order.push_front(key);
             kv_store[key] = {last_value, lru_order.begin()};
             return last_value;
@@ -181,12 +226,20 @@ private:
         return "NULL";
     }
 
+    /**
+     * @brief Marks a key as flushed when evicted due to capacity constraints.
+     * @param key The key being evicted.
+     */
     void flushToDisk(const string &key)
     {
         appendToFile("FLUSH " + key);
     }
 };
 
+/**
+ * @brief Main function that initializes the database and starts the REPL.
+ * @return Program exit status.
+ */
 int main()
 {
     BlinkDB db(5);

@@ -1,3 +1,12 @@
+/**
+ * @file BlinkServer.cpp
+ * @brief A simple in-memory key-value server using the Redis RESP-2 protocol and kqueue.
+ *
+ * This file implements a server that accepts multiple client connections and processes
+ * SET, GET, and DEL commands via RESP-2. The server uses kqueue (macOS/BSD) for
+ * asynchronous event handling and a simple in-memory storage engine for data persistence.
+ */
+
 #include <iostream>
 #include <unordered_map>
 #include <fstream>
@@ -15,24 +24,44 @@
 
 using namespace std;
 
-#define PORT 9000
-#define MAX_EVENTS 1024
-#define BUFFER_SIZE 4096
+#define PORT 9001        ///< The default port on which BlinkDB server listens.
+#define MAX_EVENTS 1024  ///< Maximum number of kqueue events to handle at once.
+#define BUFFER_SIZE 4096 ///< Size of the read/write buffer in bytes.
 
-// ----------------------------
-// BlinkDB Storage Engine
-// ----------------------------
+/**
+ * @class BlinkDB
+ * @brief A simple in-memory key-value store with basic persistence.
+ *
+ * BlinkDB provides thread-safe operations for setting, getting, and deleting keys.
+ * It writes all operations to an append-only file (AOF) for durability.
+ */
 class BlinkDB
 {
 private:
-    unordered_map<string, string> kv_store;
-    const string filename = "blinkdb.aof";
-    mutex db_mutex;
+    unordered_map<string, string> kv_store; ///< Internal in-memory key-value map.
+    const string filename = "blinkdb.aof";  ///< Name of the append-only file for persistence.
+    mutex db_mutex;                         ///< Mutex to ensure thread-safe operations.
 
 public:
+    /**
+     * @brief Constructor that clears any existing AOF file.
+     *
+     * Removes the AOF file at startup to simulate a fresh database instance.
+     */
     BlinkDB() { remove(filename.c_str()); }
+
+    /**
+     * @brief Destructor that removes the AOF file upon shutdown.
+     */
     ~BlinkDB() { remove(filename.c_str()); }
 
+    /**
+     * @brief Stores a key-value pair in the database.
+     * @param key The key to store.
+     * @param value The value associated with the key.
+     *
+     * Also appends the command to the AOF file for persistence.
+     */
     void set(const string &key, const string &value)
     {
         lock_guard<mutex> lock(db_mutex);
@@ -40,6 +69,11 @@ public:
         appendToFile("SET " + key + " " + value);
     }
 
+    /**
+     * @brief Retrieves the value associated with a key.
+     * @param key The key to retrieve.
+     * @return The value associated with the key, or an empty string if not found.
+     */
     string get(const string &key)
     {
         lock_guard<mutex> lock(db_mutex);
@@ -47,6 +81,12 @@ public:
         return it != kv_store.end() ? it->second : "";
     }
 
+    /**
+     * @brief Deletes a key-value pair from the database.
+     * @param key The key to delete.
+     *
+     * Also appends the deletion command to the AOF file.
+     */
     void del(const string &key)
     {
         lock_guard<mutex> lock(db_mutex);
@@ -55,6 +95,10 @@ public:
     }
 
 private:
+    /**
+     * @brief Appends a command to the AOF file for persistence.
+     * @param command The command string to append (e.g., "SET key value").
+     */
     void appendToFile(const string &command)
     {
         ofstream file(filename, ios::app);
@@ -65,9 +109,15 @@ private:
     }
 };
 
-// ----------------------------
-// RESP-2 Parser
-// ----------------------------
+/**
+ * @brief Parses a Redis RESP-2 formatted string into command tokens.
+ * @param input The RESP-2 formatted input string from the client.
+ * @return A pair containing:
+ *         1) A vector of parsed tokens (strings).
+ *         2) The number of bytes successfully parsed.
+ *
+ * If parsing fails or is incomplete, returns an empty vector and a parsed length of 0.
+ */
 pair<vector<string>, size_t> parseRESP(const string &input)
 {
     vector<string> tokens;
@@ -118,29 +168,40 @@ pair<vector<string>, size_t> parseRESP(const string &input)
     return {tokens, pos};
 }
 
-// ----------------------------
-// Client Connection State
-// ----------------------------
+/**
+ * @struct ClientState
+ * @brief Maintains the read and write buffers for a connected client.
+ */
 struct ClientState
 {
-    int fd;
-    string read_buffer;
-    string write_buffer;
+    int fd;              ///< File descriptor for the client's socket.
+    string read_buffer;  ///< Buffer to store data read from the client.
+    string write_buffer; ///< Buffer to store data to be written to the client.
 };
 
-// ----------------------------
-// TCP Server with kqueue
-// ----------------------------
+/**
+ * @class BlinkServer
+ * @brief Implements a TCP server that handles multiple client connections using kqueue.
+ *
+ * The server listens on a specified port, accepts incoming connections, and processes
+ * RESP-2 commands (SET, GET, DEL) using an internal BlinkDB instance.
+ */
 class BlinkServer
 {
-    int server_fd;
-    int kq;
-    BlinkDB db;
-    unordered_map<int, ClientState> clients;
+    int server_fd;                           ///< Server socket file descriptor.
+    int kq;                                  ///< kqueue descriptor.
+    BlinkDB db;                              ///< The underlying key-value store.
+    unordered_map<int, ClientState> clients; ///< Mapping of file descriptor to client state.
 
 public:
+    /**
+     * @brief Default constructor initializes server_fd and kqueue descriptor.
+     */
     BlinkServer() : server_fd(-1), kq(-1) {}
 
+    /**
+     * @brief Starts the server: sets up the socket, kqueue, and event loop.
+     */
     void run()
     {
         setupServer();
@@ -149,6 +210,10 @@ public:
     }
 
 private:
+    /**
+     * @brief Creates and binds the server socket, then begins listening for connections.
+     * @throws runtime_error if socket, bind, or listen fails.
+     */
     void setupServer()
     {
         server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -163,7 +228,7 @@ private:
         server_addr.sin_addr.s_addr = INADDR_ANY;
         server_addr.sin_port = htons(PORT);
 
-        if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+        if (::bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
             throw runtime_error("bind failed");
 
         if (listen(server_fd, MAX_EVENTS) < 0)
@@ -173,6 +238,10 @@ private:
         cout << "BlinkDB Server started on port " << PORT << endl;
     }
 
+    /**
+     * @brief Initializes kqueue and registers the server socket for read events.
+     * @throws runtime_error if kqueue initialization fails.
+     */
     void setupKqueue()
     {
         kq = kqueue();
@@ -184,6 +253,9 @@ private:
         kevent(kq, &ev, 1, NULL, 0, NULL);
     }
 
+    /**
+     * @brief Main event loop that waits for kqueue events and processes them.
+     */
     void eventLoop()
     {
         struct kevent events[MAX_EVENTS];
@@ -207,6 +279,9 @@ private:
         }
     }
 
+    /**
+     * @brief Accepts a new client connection and registers it with kqueue.
+     */
     void acceptNewConnection()
     {
         sockaddr_in client_addr{};
@@ -224,6 +299,10 @@ private:
         clients[client_fd] = {client_fd, "", ""};
     }
 
+    /**
+     * @brief Handles read/write events for a connected client.
+     * @param fd The file descriptor of the client.
+     */
     void handleClientEvent(int fd)
     {
         auto it = clients.find(fd);
@@ -254,6 +333,11 @@ private:
         processClientBuffer(client);
     }
 
+    /**
+     * @brief Parses commands from the client's read buffer, executes them, and
+     *        appends the response to the write buffer.
+     * @param client The client state containing read/write buffers.
+     */
     void processClientBuffer(ClientState &client)
     {
         while (true)
@@ -275,6 +359,11 @@ private:
         }
     }
 
+    /**
+     * @brief Processes a single RESP-2 command and generates the server response.
+     * @param tokens The parsed command tokens (e.g., {"SET", "key", "value"}).
+     * @param response The response to be sent back to the client.
+     */
     void processCommand(const vector<string> &tokens, string &response)
     {
         if (tokens.empty())
@@ -294,7 +383,9 @@ private:
         else if (cmd == "GET" && tokens.size() == 2)
         {
             string value = db.get(tokens[1]);
-            response = value.empty() ? "$-1\r\n" : "$" + to_string(value.size()) + "\r\n" + value + "\r\n";
+            response = value.empty()
+                           ? "$-1\r\n"
+                           : "$" + to_string(value.size()) + "\r\n" + value + "\r\n";
         }
         else if (cmd == "DEL" && tokens.size() == 2)
         {
@@ -307,6 +398,10 @@ private:
         }
     }
 
+    /**
+     * @brief Sends any pending response in the client's write buffer back to the client.
+     * @param client The client state containing the write buffer.
+     */
     void sendResponse(ClientState &client)
     {
         ssize_t sent = send(client.fd, client.write_buffer.data(), client.write_buffer.size(), 0);
@@ -320,6 +415,10 @@ private:
         }
     }
 
+    /**
+     * @brief Closes the connection for a given client and removes it from the active clients map.
+     * @param fd The file descriptor of the client to close.
+     */
     void closeConnection(int fd)
     {
         close(fd);
@@ -327,9 +426,10 @@ private:
     }
 };
 
-// ----------------------------
-// Main Function
-// ----------------------------
+/**
+ * @brief Main function that creates and runs the BlinkServer.
+ * @return Returns 0 on success, or 1 if an exception is thrown.
+ */
 int main()
 {
     try
