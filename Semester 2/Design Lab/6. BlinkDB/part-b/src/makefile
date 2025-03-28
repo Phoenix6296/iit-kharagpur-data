@@ -47,7 +47,13 @@ $(TARGET): $(SRCS)
 ###############################################################################
 run: build
 	@echo "Checking if port 9001 is available..."
-	@PID_LIST=`lsof -ti :9001` && if [ ! -z "$$PID_LIST" ]; then echo "Killing process(es) running on port 9001..."; kill -9 $$PID_LIST; else echo "Port 9001 is available."; fi
+	@PID_LIST=`lsof -ti :9001`; \
+	if [ -n "$$PID_LIST" ]; then \
+	  echo "Killing process(es) running on port 9001..."; \
+	  kill -9 $$PID_LIST; \
+	else \
+	  echo "Port 9001 is available."; \
+	fi
 	@echo "Running BlinkDB server..."
 	./$(TARGET)
 
@@ -57,7 +63,13 @@ run: build
 ###############################################################################
 benchmark: $(TARGET)
 	@echo "Checking if port 9001 is available..."
-	@PID_LIST=`lsof -ti :9001` && if [ ! -z "$$PID_LIST" ]; then echo "Killing process(es) running on port 9001..."; kill -9 $$PID_LIST; else echo "Port 9001 is available."; fi
+	@PID_LIST=`lsof -ti :9001`; \
+	if [ -n "$$PID_LIST" ]; then \
+	  echo "Killing process(es) running on port 9001..."; \
+	  kill -9 $$PID_LIST; \
+	else \
+	  echo "Port 9001 is available."; \
+	fi
 	@echo "Starting BlinkDB server..."
 	@mkdir -p ../result
 	@./$(TARGET) & echo $$! > server.pid
@@ -84,8 +96,6 @@ benchmark: $(TARGET)
 	)
 	@echo "Killing BlinkDB server running on port 9001..."
 	@PID=`cat server.pid` && kill -9 $$PID && rm server.pid
-	@echo "Deleting AOF file..."
-	@rm -f blinkdb.aof
 
 ###############################################################################
 # Clean build files and benchmark reports
