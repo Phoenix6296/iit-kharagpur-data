@@ -91,11 +91,16 @@ public:
      * If the key exists in the in-memory store, it is removed and the deletion command
      * ("DEL") is appended to the AOF file for persistence.
      */
-    void del(const string &key)
+    bool del(const string &key)
     {
         lock_guard<mutex> lock(db_mutex);
-        if (kv_store.erase(key))
+        if (kv_store.find(key) != kv_store.end())
+        {
+            kv_store.erase(key);
             appendToFile("DEL " + key);
+            return true;
+        }
+        return false;
     }
 
 private:
@@ -417,13 +422,13 @@ private:
         {
             string value = db.get(tokens[1]);
             response = value.empty()
-                           ? "$-1\r\n"
+                           ? "$-1\r\n" // Key not found
                            : "$" + to_string(value.size()) + "\r\n" + value + "\r\n";
         }
         else if (cmd == "DEL" && tokens.size() == 2)
         {
-            db.del(tokens[1]);
-            response = ":1\r\n";
+            bool deleted = db.del(tokens[1]);         // Check if key was deleted
+            response = deleted ? ":1\r\n" : ":0\r\n"; // Correct response for DEL
         }
         else
         {
