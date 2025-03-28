@@ -3,8 +3,8 @@
  * @brief A simple in-memory key-value server using the Redis RESP-2 protocol and kqueue.
  *
  * This file implements a server that accepts multiple client connections and processes
- * SET, GET, and DEL commands via RESP-2. The server uses kqueue (macOS/BSD) for
- * asynchronous event handling and a simple in-memory storage engine for data persistence.
+ * SET, GET, and DEL commands via the Redis RESP-2 protocol. It uses kqueue (available on macOS/BSD)
+ * for asynchronous event handling and a simple in-memory storage engine for data persistence.
  */
 
 #include <iostream>
@@ -60,7 +60,8 @@ public:
      * @param key The key to store.
      * @param value The value associated with the key.
      *
-     * Also appends the command to the AOF file for persistence.
+     * This operation is thread-safe. It updates the in-memory store and appends
+     * the corresponding "SET" command to the AOF file for persistence.
      */
     void set(const string &key, const string &value)
     {
@@ -72,7 +73,9 @@ public:
     /**
      * @brief Retrieves the value associated with a key.
      * @param key The key to retrieve.
-     * @return The value associated with the key, or an empty string if not found.
+     * @return The value associated with the key, or an empty string if the key is not found.
+     *
+     * This function is thread-safe and looks up the value in the in-memory store.
      */
     string get(const string &key)
     {
@@ -85,7 +88,8 @@ public:
      * @brief Deletes a key-value pair from the database.
      * @param key The key to delete.
      *
-     * Also appends the deletion command to the AOF file.
+     * If the key exists in the in-memory store, it is removed and the deletion command
+     * ("DEL") is appended to the AOF file for persistence.
      */
     void del(const string &key)
     {
@@ -98,6 +102,8 @@ private:
     /**
      * @brief Appends a command to the AOF file for persistence.
      * @param command The command string to append (e.g., "SET key value").
+     *
+     * Opens the AOF file in append mode and writes the command. No error handling is performed.
      */
     void appendToFile(const string &command)
     {
@@ -112,11 +118,12 @@ private:
 /**
  * @brief Parses a Redis RESP-2 formatted string into command tokens.
  * @param input The RESP-2 formatted input string from the client.
- * @return A pair containing:
- *         1) A vector of parsed tokens (strings).
- *         2) The number of bytes successfully parsed.
+ * @return A pair consisting of:
+ *         - A vector of parsed tokens (strings).
+ *         - The number of bytes successfully parsed.
  *
- * If parsing fails or is incomplete, returns an empty vector and a parsed length of 0.
+ * The function processes the input string according to the RESP-2 protocol.
+ * If the input is invalid or incomplete, it returns an empty vector and a parsed length of 0.
  */
 pair<vector<string>, size_t> parseRESP(const string &input)
 {
@@ -171,6 +178,9 @@ pair<vector<string>, size_t> parseRESP(const string &input)
 /**
  * @struct ClientState
  * @brief Maintains the read and write buffers for a connected client.
+ *
+ * This structure stores the state for a client connection including the socket file descriptor,
+ * a buffer for incoming data (read_buffer), and a buffer for outgoing data (write_buffer).
  */
 struct ClientState
 {
@@ -183,24 +193,28 @@ struct ClientState
  * @class BlinkServer
  * @brief Implements a TCP server that handles multiple client connections using kqueue.
  *
- * The server listens on a specified port, accepts incoming connections, and processes
- * RESP-2 commands (SET, GET, DEL) using an internal BlinkDB instance.
+ * BlinkServer listens on a specified port and accepts incoming client connections.
+ * It processes commands encoded in the Redis RESP-2 protocol (SET, GET, DEL) by
+ * interacting with an internal BlinkDB instance. The server uses kqueue for asynchronous
+ * event handling.
  */
 class BlinkServer
 {
     int server_fd;                           ///< Server socket file descriptor.
     int kq;                                  ///< kqueue descriptor.
-    BlinkDB db;                              ///< The underlying key-value store.
-    unordered_map<int, ClientState> clients; ///< Mapping of file descriptor to client state.
+    BlinkDB db;                              ///< Internal key-value store.
+    unordered_map<int, ClientState> clients; ///< Maps client socket file descriptors to their state.
 
 public:
     /**
-     * @brief Default constructor initializes server_fd and kqueue descriptor.
+     * @brief Default constructor initializes server file descriptor and kqueue descriptor.
      */
     BlinkServer() : server_fd(-1), kq(-1) {}
 
     /**
-     * @brief Starts the server: sets up the socket, kqueue, and event loop.
+     * @brief Starts the server.
+     *
+     * This function sets up the server socket, initializes kqueue, and enters the main event loop.
      */
     void run()
     {
@@ -212,7 +226,11 @@ public:
 private:
     /**
      * @brief Creates and binds the server socket, then begins listening for connections.
-     * @throws runtime_error if socket, bind, or listen fails.
+     *
+     * This function sets the socket options, binds to the specified port, and starts listening.
+     * It also marks the socket as non-blocking.
+     *
+     * @throws runtime_error if the socket, bind, or listen operation fails.
      */
     void setupServer()
     {
@@ -240,6 +258,7 @@ private:
 
     /**
      * @brief Initializes kqueue and registers the server socket for read events.
+     *
      * @throws runtime_error if kqueue initialization fails.
      */
     void setupKqueue()
@@ -255,6 +274,9 @@ private:
 
     /**
      * @brief Main event loop that waits for kqueue events and processes them.
+     *
+     * This function continuously waits for events. When a new event occurs, it determines
+     * if it is a new connection or an event from an existing client and dispatches accordingly.
      */
     void eventLoop()
     {
@@ -266,7 +288,6 @@ private:
             for (int i = 0; i < nev; i++)
             {
                 int fd = events[i].ident;
-
                 if (fd == server_fd)
                 {
                     acceptNewConnection();
@@ -281,6 +302,8 @@ private:
 
     /**
      * @brief Accepts a new client connection and registers it with kqueue.
+     *
+     * The new client socket is set to non-blocking mode and added to the kqueue for read events.
      */
     void acceptNewConnection()
     {
@@ -296,12 +319,16 @@ private:
         EV_SET(&ev, client_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
         kevent(kq, &ev, 1, NULL, 0, NULL);
 
+        // Initialize a new ClientState for the accepted client.
         clients[client_fd] = {client_fd, "", ""};
     }
 
     /**
-     * @brief Handles read/write events for a connected client.
+     * @brief Handles events from a client.
      * @param fd The file descriptor of the client.
+     *
+     * This function reads incoming data from the client, appends it to the client's read buffer,
+     * processes complete commands, and sends out responses.
      */
     void handleClientEvent(int fd)
     {
@@ -334,9 +361,11 @@ private:
     }
 
     /**
-     * @brief Parses commands from the client's read buffer, executes them, and
-     *        appends the response to the write buffer.
-     * @param client The client state containing read/write buffers.
+     * @brief Processes complete RESP-2 commands from a client's read buffer.
+     * @param client The client state containing the read and write buffers.
+     *
+     * Parses the read buffer for complete commands using the RESP-2 protocol,
+     * processes each command, and appends the response to the client's write buffer.
      */
     void processClientBuffer(ClientState &client)
     {
@@ -350,6 +379,7 @@ private:
             processCommand(tokens, response);
             client.write_buffer += response;
 
+            // Remove the processed command from the read buffer.
             client.read_buffer.erase(0, parsed);
         }
 
@@ -360,9 +390,12 @@ private:
     }
 
     /**
-     * @brief Processes a single RESP-2 command and generates the server response.
-     * @param tokens The parsed command tokens (e.g., {"SET", "key", "value"}).
-     * @param response The response to be sent back to the client.
+     * @brief Processes a single RESP-2 command and generates a response.
+     * @param tokens A vector of command tokens (e.g., {"SET", "key", "value"}).
+     * @param response The generated response to be sent back to the client.
+     *
+     * This function validates the command and calls the corresponding operation on the BlinkDB instance.
+     * Supported commands are SET, GET, and DEL.
      */
     void processCommand(const vector<string> &tokens, string &response)
     {
@@ -399,8 +432,11 @@ private:
     }
 
     /**
-     * @brief Sends any pending response in the client's write buffer back to the client.
+     * @brief Sends pending data from the client's write buffer to the client.
      * @param client The client state containing the write buffer.
+     *
+     * The function attempts to send as much data as possible. If the send fails due to an error
+     * (other than EAGAIN), the connection is closed.
      */
     void sendResponse(ClientState &client)
     {
@@ -416,7 +452,7 @@ private:
     }
 
     /**
-     * @brief Closes the connection for a given client and removes it from the active clients map.
+     * @brief Closes the connection for a client and removes it from the active clients map.
      * @param fd The file descriptor of the client to close.
      */
     void closeConnection(int fd)
@@ -427,8 +463,12 @@ private:
 };
 
 /**
- * @brief Main function that creates and runs the BlinkServer.
- * @return Returns 0 on success, or 1 if an exception is thrown.
+ * @brief Main entry point of the BlinkServer application.
+ * @return Exit status of the program (0 for success, 1 for failure).
+ *
+ * The main function creates a BlinkServer instance and starts it.
+ * Any exceptions encountered during server startup or operation are caught,
+ * and an error message is printed.
  */
 int main()
 {
