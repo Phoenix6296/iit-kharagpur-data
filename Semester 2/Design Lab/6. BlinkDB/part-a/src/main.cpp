@@ -180,17 +180,38 @@ public:
      */
     void del(const string &key)
     {
-        lock_guard<mutex> lock(db_mutex);
-        if (kv_store.find(key) != kv_store.end())
+        bool keyFound = false;
         {
-            lru_order.erase(kv_store[key].second);
-            kv_store.erase(key);
-            appendToFile("DEL " + key);
+            // First, check if the key exists in memory.
+            lock_guard<mutex> lock(db_mutex);
+            if (kv_store.find(key) != kv_store.end())
+            {
+                keyFound = true;
+            }
         }
-        else
+        if (!keyFound)
         {
-            cout << "Does not exist." << endl;
+            // If the key isn’t in memory, try loading it from disk.
+            // Note: loadFromDisk() will load the key into memory if found.
+            string value = loadFromDisk(key);
+            if (value == "NULL")
+            {
+                cout << "Does not exist." << endl;
+                return;
+            }
         }
+        {
+            // Now that the key is either already in memory or loaded from disk,
+            // delete it from the in-memory store.
+            lock_guard<mutex> lock(db_mutex);
+            if (kv_store.find(key) != kv_store.end())
+            {
+                lru_order.erase(kv_store[key].second);
+                kv_store.erase(key);
+            }
+        }
+        // Log the deletion in the AOF.
+        appendToFile("DEL " + key);
     }
 
     /**
@@ -437,7 +458,7 @@ private:
 int main()
 {
     // Create a BlinkDB instance with a capacity of 5.
-    BlinkDB db(5);
+    BlinkDB db(3);
     db.runREPL();
     return 0;
 }
