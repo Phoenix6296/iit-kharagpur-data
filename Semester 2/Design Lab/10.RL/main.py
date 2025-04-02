@@ -2,32 +2,39 @@
 
 import matplotlib.pyplot as plt
 from environment import RoomCleaningEnv
-from q_learning import QLearningAgent, hyperparameter_search
+from dqn import DQNAgent, dqn_hyperparameter_search
 
 def main():
-    # Run hyperparameter search
-    best_params, _ = hyperparameter_search()
+    # Run DQN hyperparameter search
+    best_params, _ = dqn_hyperparameter_search()
     
-    # Create environment with chosen hyperparameters for visualization demonstration.
+    # Unpack best hyperparameters:
+    lr, gamma, epsilon, max_steps, batch_size, update_frequency = best_params
+    print("\nTraining DQN Agent with best hyperparameters...")
+    
+    # Create the environment
     env = RoomCleaningEnv(grid_size=10, max_steps=100)
-    agent = QLearningAgent(env, alpha=best_params[0], gamma=best_params[1], epsilon=best_params[2], max_steps=best_params[3])
     
-    # Train agent for demonstration
-    episodes = 500
-    rewards = agent.train(episodes=episodes)
+    # Initialize DQN agent with best hyperparameters
+    agent = DQNAgent(env, lr=lr, gamma=gamma, epsilon=epsilon,
+                     replay_buffer_size=1e7, max_steps=max_steps,
+                     batch_size=batch_size, update_frequency=update_frequency)
     
-    # Plot training rewards
-    plt.plot(rewards)
+    # Train the agent for more episodes (e.g., 500 episodes)
+    episode_rewards = agent.train(num_episodes=500)
+    
+    # Plot the training progress
+    plt.plot(episode_rewards)
     plt.xlabel("Episode")
     plt.ylabel("Total Reward")
-    plt.title("Training Rewards Over Episodes")
+    plt.title("DQN Training Rewards")
     plt.show()
     
-    # Demonstrate one episode with visual rendering.
+    # Demonstrate one episode with visual rendering
     state = env.reset()
     done = False
     while not done:
-        action = agent.choose_action(state)
+        action = agent.select_action(state)
         state, reward, done, _ = env.step(action)
         env.render_visual(action=action, reward=reward, pause_time=0.5)
     
