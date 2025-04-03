@@ -1,0 +1,15 @@
+24CS60R71 Male 23 krishnabiswakarma.24@kgpian.iitkgp.ac.in
+24CS60R70 Female 22 riya9072002.24@kgpian.iitkgp.ac.in
+6 Hate speech in Travel and Tourism
+#####################
+Q1. What languages do you mostly prompt an LLM in?
+English
+
+Q2. Did you feel any difference in terms of the quality of output; LLM instruction understanding capability when prompted In a language other than English?
+Yes, responses in Hindi are often less detailed and sometimes misinterpret colloquial phrases.
+
+Q3. On a scale of 1-5, how often do you use LLMs in your daily task? 1: Very Rarely - 5: Very Frequently
+4
+
+Q4. What are the important domains or areas that you could think of specific to Indian culture where general-purpose LLMs might fall behind?
+Understanding regional slurs, context-aware moderation of caste/religious references, and detecting subtle linguistic discrimination in service interactions
