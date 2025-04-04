@@ -1,0 +1,306 @@
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.05, max_steps=10
+2025-04-04 14:23:40.017 python[82478:4664060] +[IMKClient subclass]: chose IMKClient_Modern
+2025-04-04 14:23:40.017 python[82478:4664060] +[IMKInputSession subclass]: chose IMKInputSession_Modern
+Episode 0, Total Reward: -10
+Episode 100, Total Reward: -10
+Episode 200, Total Reward: -10
+Episode 300, Total Reward: 94
+Episode 400, Total Reward: 98
+Episode 500, Total Reward: 91
+Episode 600, Total Reward: -10
+Episode 700, Total Reward: -10
+Episode 800, Total Reward: 95
+Episode 900, Total Reward: 94
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.05, max_steps=100
+Episode 0, Total Reward: -144
+Episode 100, Total Reward: 93
+Episode 200, Total Reward: 93
+Episode 300, Total Reward: 92
+Episode 400, Total Reward: 96
+Episode 500, Total Reward: 94
+Episode 600, Total Reward: 84
+Episode 700, Total Reward: 92
+Episode 800, Total Reward: 90
+Episode 900, Total Reward: 91
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.05, max_steps=1000
+Episode 0, Total Reward: -123
+Episode 100, Total Reward: 96
+Episode 200, Total Reward: 95
+Episode 300, Total Reward: 93
+Episode 400, Total Reward: 94
+Episode 500, Total Reward: 93
+Episode 600, Total Reward: 89
+Episode 700, Total Reward: 96
+Episode 800, Total Reward: 97
+Episode 900, Total Reward: 87
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.05, max_steps=10000
+Episode 0, Total Reward: -763
+Episode 100, Total Reward: 94
+Episode 200, Total Reward: 92
+Episode 300, Total Reward: 93
+Episode 400, Total Reward: 96
+Episode 500, Total Reward: 96
+Episode 600, Total Reward: 92
+Episode 700, Total Reward: 92
+Episode 800, Total Reward: 90
+Episode 900, Total Reward: 96
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.05, max_steps=100000
+Episode 0, Total Reward: -222
+Episode 100, Total Reward: 92
+Episode 200, Total Reward: 98
+Episode 300, Total Reward: 97
+Episode 400, Total Reward: 97
+Episode 500, Total Reward: 94
+Episode 600, Total Reward: 97
+Episode 700, Total Reward: 97
+Episode 800, Total Reward: 88
+Episode 900, Total Reward: 93
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.1, max_steps=10
+Episode 0, Total Reward: -10
+Episode 100, Total Reward: -10
+Episode 200, Total Reward: -14
+Episode 300, Total Reward: 92
+Episode 400, Total Reward: -14
+Episode 500, Total Reward: 91
+Episode 600, Total Reward: 88
+Episode 700, Total Reward: -10
+Episode 800, Total Reward: 93
+Episode 900, Total Reward: -10
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.1, max_steps=100
+Episode 0, Total Reward: -144
+Episode 100, Total Reward: 93
+Episode 200, Total Reward: 98
+Episode 300, Total Reward: 87
+Episode 400, Total Reward: 90
+Episode 500, Total Reward: 95
+Episode 600, Total Reward: 94
+Episode 700, Total Reward: 93
+Episode 800, Total Reward: 91
+Episode 900, Total Reward: 95
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.1, max_steps=1000
+Episode 0, Total Reward: -737
+Episode 100, Total Reward: 95
+Episode 200, Total Reward: 89
+Episode 300, Total Reward: 95
+Episode 400, Total Reward: 91
+Episode 500, Total Reward: 90
+Episode 600, Total Reward: 93
+Episode 700, Total Reward: 94
+Episode 800, Total Reward: 90
+Episode 900, Total Reward: 95
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.1, max_steps=10000
+Episode 0, Total Reward: -358
+Episode 100, Total Reward: 96
+Episode 200, Total Reward: 92
+Episode 300, Total Reward: 98
+Episode 400, Total Reward: 90
+Episode 500, Total Reward: 93
+Episode 600, Total Reward: 94
+Episode 700, Total Reward: 87
+Episode 800, Total Reward: 88
+Episode 900, Total Reward: 94
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.1, max_steps=100000
+Episode 0, Total Reward: -660
+Episode 100, Total Reward: 95
+Episode 200, Total Reward: 96
+Episode 300, Total Reward: 93
+Episode 400, Total Reward: 95
+Episode 500, Total Reward: 93
+Episode 600, Total Reward: 94
+Episode 700, Total Reward: 94
+Episode 800, Total Reward: 98
+Episode 900, Total Reward: 92
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.2, max_steps=10
+Episode 0, Total Reward: -10
+Episode 100, Total Reward: 96
+Episode 200, Total Reward: -14
+Episode 300, Total Reward: -10
+Episode 400, Total Reward: -10
+Episode 500, Total Reward: -14
+Episode 600, Total Reward: 98
+Episode 700, Total Reward: 89
+Episode 800, Total Reward: -14
+Episode 900, Total Reward: 91
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.2, max_steps=100
+Episode 0, Total Reward: 3
+Episode 100, Total Reward: 90
+Episode 200, Total Reward: 96
+Episode 300, Total Reward: 96
+Episode 400, Total Reward: 96
+Episode 500, Total Reward: 95
+Episode 600, Total Reward: 95
+Episode 700, Total Reward: 91
+Episode 800, Total Reward: 83
+Episode 900, Total Reward: 89
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.2, max_steps=1000
+Episode 0, Total Reward: -589
+Episode 100, Total Reward: 93
+Episode 200, Total Reward: 87
+Episode 300, Total Reward: 94
+Episode 400, Total Reward: 88
+Episode 500, Total Reward: 87
+Episode 600, Total Reward: 87
+Episode 700, Total Reward: 92
+Episode 800, Total Reward: 97
+Episode 900, Total Reward: 87
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.2, max_steps=10000
+Episode 0, Total Reward: -241
+Episode 100, Total Reward: 89
+Episode 200, Total Reward: 87
+Episode 300, Total Reward: 94
+Episode 400, Total Reward: 93
+Episode 500, Total Reward: 81
+Episode 600, Total Reward: 98
+Episode 700, Total Reward: 90
+Episode 800, Total Reward: 72
+Episode 900, Total Reward: 88
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.2, max_steps=100000
+Episode 0, Total Reward: -351
+Episode 100, Total Reward: 84
+Episode 200, Total Reward: 87
+Episode 300, Total Reward: 91
+Episode 400, Total Reward: 92
+Episode 500, Total Reward: 91
+Episode 600, Total Reward: 84
+Episode 700, Total Reward: 90
+Episode 800, Total Reward: 90
+Episode 900, Total Reward: 87
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.4, max_steps=10
+Episode 0, Total Reward: -22
+Episode 100, Total Reward: -22
+Episode 200, Total Reward: -18
+Episode 300, Total Reward: -18
+Episode 400, Total Reward: -18
+Episode 500, Total Reward: -10
+Episode 600, Total Reward: -14
+Episode 700, Total Reward: -14
+Episode 800, Total Reward: 96
+Episode 900, Total Reward: -18
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.4, max_steps=100
+Episode 0, Total Reward: -132
+Episode 100, Total Reward: 83
+Episode 200, Total Reward: 94
+Episode 300, Total Reward: 79
+Episode 400, Total Reward: 88
+Episode 500, Total Reward: 82
+Episode 600, Total Reward: 79
+Episode 700, Total Reward: 92
+Episode 800, Total Reward: 84
+Episode 900, Total Reward: 71
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.4, max_steps=1000
+Episode 0, Total Reward: -1034
+Episode 100, Total Reward: 96
+Episode 200, Total Reward: 93
+Episode 300, Total Reward: 88
+Episode 400, Total Reward: 95
+Episode 500, Total Reward: 86
+Episode 600, Total Reward: 77
+Episode 700, Total Reward: 88
+Episode 800, Total Reward: 84
+Episode 900, Total Reward: 84
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.4, max_steps=10000
+Episode 0, Total Reward: -608
+Episode 100, Total Reward: 95
+Episode 200, Total Reward: 94
+Episode 300, Total Reward: 99
+Episode 400, Total Reward: 79
+Episode 500, Total Reward: 83
+Episode 600, Total Reward: 94
+Episode 700, Total Reward: 83
+Episode 800, Total Reward: 82
+Episode 900, Total Reward: 82
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.4, max_steps=100000
+Episode 0, Total Reward: -876
+Episode 100, Total Reward: 93
+Episode 200, Total Reward: 94
+Episode 300, Total Reward: 83
+Episode 400, Total Reward: 83
+Episode 500, Total Reward: 85
+Episode 600, Total Reward: 96
+Episode 700, Total Reward: 82
+Episode 800, Total Reward: 84
+Episode 900, Total Reward: 97
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.5, max_steps=10
+Episode 0, Total Reward: -18
+Episode 100, Total Reward: -14
+Episode 200, Total Reward: -14
+Episode 300, Total Reward: -14
+Episode 400, Total Reward: -10
+Episode 500, Total Reward: -10
+Episode 600, Total Reward: -22
+Episode 700, Total Reward: -14
+Episode 800, Total Reward: -14
+Episode 900, Total Reward: 79
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.5, max_steps=100
+Episode 0, Total Reward: -164
+Episode 100, Total Reward: 89
+Episode 200, Total Reward: 92
+Episode 300, Total Reward: 91
+Episode 400, Total Reward: 90
+Episode 500, Total Reward: 87
+Episode 600, Total Reward: 90
+Episode 700, Total Reward: 92
+Episode 800, Total Reward: 62
+Episode 900, Total Reward: 69
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.5, max_steps=1000
+Episode 0, Total Reward: -65
+Episode 100, Total Reward: 86
+Episode 200, Total Reward: 90
+Episode 300, Total Reward: 61
+Episode 400, Total Reward: 63
+Episode 500, Total Reward: 98
+Episode 600, Total Reward: 59
+Episode 700, Total Reward: 93
+Episode 800, Total Reward: 81
+Episode 900, Total Reward: 77
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.5, max_steps=10000
+Episode 0, Total Reward: -875
+Episode 100, Total Reward: 76
+Episode 200, Total Reward: 93
+Episode 300, Total Reward: 86
+Episode 400, Total Reward: 92
+Episode 500, Total Reward: 87
+Episode 600, Total Reward: 60
+Episode 700, Total Reward: 64
+Episode 800, Total Reward: 62
+Episode 900, Total Reward: 84
+
+Params: grid_size=10, lr=0.1, gamma=0.9, epsilon=0.5, max_steps=100000
+Episode 0, Total Reward: -967
+Episode 100, Total Reward: 87
+Episode 200, Total Reward: 97
+Episode 300, Total Reward: 94
+Episode 400, Total Reward: 58
+Episode 500, Total Reward: 87
+Episode 600, Total Reward: 56
+Episode 700, Total Reward: 68
+Episode 800, Total Reward: 81
+Episode 900, Total Reward: 68
+
+Best params for grid size 10:
+{'grid_size': 10, 'lr': 0.1, 'gamma': 0.9, 'epsilon': 0.1, 'max_steps': 100000, 'final_avg_reward': np.float64(93.92), 'time_taken': 21.117502212524414}
+
+Total execution time: 342.51 seconds
