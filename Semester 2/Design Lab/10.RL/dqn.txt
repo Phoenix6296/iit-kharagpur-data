@@ -1,0 +1,22 @@
+
+Params: grid_size=10, lr=0.001, gamma=0.95, epsilon=0.05, buffer_size=10000000.0, max_steps=10, batch_size=32, update_freq=1000
+Episode 0, Total Reward: -10
+Episode 100, Total Reward: -10
+Episode 200, Total Reward: -10
+Episode 300, Total Reward: -10
+Episode 400, Total Reward: -10
+Episode 500, Total Reward: -10
+Episode 600, Total Reward: -10
+Episode 700, Total Reward: -10
+Episode 800, Total Reward: -42
+Episode 900, Total Reward: -10
+
+Params: grid_size=10, lr=0.001, gamma=0.95, epsilon=0.05, buffer_size=10000000.0, max_steps=10, batch_size=64, update_freq=1000
+Episode 0, Total Reward: -10
+Episode 100, Total Reward: -10
+Episode 200, Total Reward: -10
+Episode 300, Total Reward: -10
+Episode 400, Total Reward: -10
+Episode 500, Total Reward: -10
+Episode 600, Total Reward: -10
+Episode 700, Total Reward: -10

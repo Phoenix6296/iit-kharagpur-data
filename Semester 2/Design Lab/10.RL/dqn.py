@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 from gym import spaces
 from collections import deque
+import sys
 
 # --- Environment Class (Same as before) ---
 class CleaningRobotEnv:
@@ -261,6 +262,23 @@ class DQNAgent:
 
 # --- Training Loop for DQN with Hyperparameter Search ---
 if __name__ == "__main__":
+    # Setup logger to store print statements in dqn.txt as well as display them
+    class Logger(object):
+        def __init__(self, stream, file):
+            self.stream = stream
+            self.file = file
+
+        def write(self, message):
+            self.stream.write(message)
+            self.file.write(message)
+
+        def flush(self):
+            self.stream.flush()
+            self.file.flush()
+
+    log_file = open("dqn.txt", "w")
+    sys.stdout = Logger(sys.stdout, log_file)
+
     total_start = time.time()  # Start timer for entire execution
 
     # Define hyperparameter search space
@@ -367,3 +385,6 @@ if __name__ == "__main__":
 
     total_time = time.time() - total_start  # Total time for entire execution
     print(f"\nTotal execution time: {total_time:.2f} seconds")
+    
+    # Close the log file
+    log_file.close()
