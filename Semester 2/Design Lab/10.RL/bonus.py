@@ -151,7 +151,7 @@ class CleaningRobotEnv:
         pygame.display.flip()
 
 # --- Training Loop ---
-def train_dqn(env, episodes=500):
+def train_dqn(env, episodes=5):
     input_size = env.size * env.size
     output_size = 5  # 4 movements + clean
     
@@ -190,7 +190,7 @@ def train_dqn(env, episodes=500):
             
             # Render every step
             env.render()
-            pygame.time.delay(50)  # Slow down for visualization
+            # pygame.time.delay(50)  # Slow down for visualization
             
             # Train on batch
             if len(buffer) >= 128:
