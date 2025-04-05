@@ -232,6 +232,9 @@ def perform_hyperparameter_search(environment):
     return best_params
 
 def evaluate_performance(hyperparam=False, show_visuals=False):
+    # Evaluate over grid sizes 10, 100, 1000, 10000, 100000, ..., 1e7
+    # For testing we are using 10, 100, 1000
+    # For larger sizes, the time taken is too long
     grid_sizes = [10, 100, 1000]
     evaluation_results = {}
     for grid_size in grid_sizes:
