@@ -262,10 +262,10 @@ def dqn_train(environment, episodes=1000, max_steps=100, learning_rate=0.1, disc
 
 def perform_hyperparameter_search_dqn(environment):
     print("Starting hyperparameter search for DQN...")
-    candidate_learning_rates = [0.05, 0.1, 0.2]
-    candidate_discount_factors = [0.9, 0.95, 0.99]
-    candidate_exploration_rates = [0.05, 0.1, 0.2, 0.4, 0.5]
-    candidate_max_steps = [10, 100, 1000, 10000, 100000]
+    candidate_learning_rates = [0.2]
+    candidate_discount_factors = [0.99]
+    candidate_exploration_rates = [0.5]
+    candidate_max_steps = [10]
     candidate_batch_sizes = [32, 64, 128, 256]
     candidate_update_freqs = [100, 1000, 10000, 100000]
     best_avg_reward = -np.inf
