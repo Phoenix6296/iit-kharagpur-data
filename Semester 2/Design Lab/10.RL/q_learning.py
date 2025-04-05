@@ -5,6 +5,7 @@ import time
 import os
 from gym import spaces
 from itertools import product
+import argparse
 
 # --- Q-Learning Functions ---
 def get_state_index(state, size):
@@ -25,7 +26,7 @@ def learn(q_table, state, action, reward, next_state, lr, gamma, size):
 
 # --- Environment Class ---
 class CleaningRobotEnv:
-    def __init__(self, size=10, num_obstacles=5):
+    def __init__(self, size=10, num_obstacles=5, visualize=False, delay=0.1):
         self.size = size
         self.grid = np.zeros((size, size), dtype=np.uint8)
         self.place_obstacles(num_obstacles)
@@ -47,6 +48,7 @@ class CleaningRobotEnv:
         self.observation_space = spaces.Box(low=0, high=size - 1, shape=(4,), dtype=np.int32)
 
         # Only initialize pygame for smaller grids
+        self.visualize = visualize
         if size <= 100:
             pygame.init()
             self.cell_size = min(800 // size, 40)
@@ -67,6 +69,7 @@ class CleaningRobotEnv:
         self.current_action = None
         self.current_reward = 0
         self.step_count = 0
+        self.delay = delay  # delay for visualization
 
     def place_obstacles(self, num_obstacles):
         # Border walls
@@ -83,7 +86,6 @@ class CleaningRobotEnv:
 
     def place_dirt_near_walls(self):
         """Place dirt preferentially near walls/obstacles"""
-        # Find all wall-adjacent positions
         candidates = []
         wall_positions = np.argwhere(self.grid == 1)
         
@@ -94,17 +96,15 @@ class CleaningRobotEnv:
                     self.grid[x,y] == 0 and (x,y) != self.dirt_pos):
                     candidates.append((x,y))
         
-        # If no wall-adjacent spots, fall back to random placement
         if not candidates:
             candidates = [(x,y) for x in range(self.size) 
                          for y in range(self.size) if self.grid[x,y] == 0]
         
-        # Weight by distance to nearest wall (closer = higher probability)
         if candidates:
             weights = []
             for x,y in candidates:
                 min_dist = min(abs(x-wx) + abs(y-wy) for wx,wy in wall_positions)
-                weights.append(1/(min_dist + 1))  # +1 to avoid division by zero
+                weights.append(1/(min_dist + 1))
             
             weights = np.array(weights)
             weights /= weights.sum()
@@ -117,7 +117,6 @@ class CleaningRobotEnv:
         while True:
             x, y = np.random.randint(1, self.size - 1, size=2)
             if self.grid[x, y] == 0 and (x,y) != self.dirt_pos:
-                # Ensure it's not adjacent to a wall
                 wall_adjacent = False
                 for dx, dy in [(0,1), (1,0), (0,-1), (-1,0)]:
                     if self.grid[x+dx, y+dy] == 1:
@@ -141,11 +140,10 @@ class CleaningRobotEnv:
             dx, dy = [(0, -1), (1, 0), (0, 1), (-1, 0)][action]
             new_x, new_y = x + dx, y + dy
             
-            # For large grids, use sparse obstacle check
             if self.large_grid:
                 collision = (new_x < 0 or new_x >= self.size or 
-                            new_y < 0 or new_y >= self.size or 
-                            (new_x, new_y) in self.obstacle_positions)
+                             new_y < 0 or new_y >= self.size or 
+                             (new_x, new_y) in self.obstacle_positions)
             else:
                 collision = self.grid[new_x, new_y] == 1
                 
@@ -167,7 +165,7 @@ class CleaningRobotEnv:
         return state, reward, done, {}
 
     def render(self, mode='human'):
-        if self.size > 100:  # Skip rendering for very large grids
+        if self.size > 100:
             return np.zeros((1,1,3)) if mode == 'rgb_array' else None
 
         for event in pygame.event.get():
@@ -179,7 +177,7 @@ class CleaningRobotEnv:
         for i in range(self.size):
             for j in range(self.size):
                 rect = pygame.Rect(j * self.cell_size, i * self.cell_size, 
-                                 self.cell_size, self.cell_size)
+                                    self.cell_size, self.cell_size)
                 pygame.draw.rect(self.screen, self.grid_color, rect, 1)
                 if self.grid[i, j] == 1:
                     pygame.draw.rect(self.screen, self.wall_color, rect)
@@ -200,116 +198,150 @@ class CleaningRobotEnv:
         self.screen.blit(info_panel, (0, self.screen_size))
         pygame.display.flip()
         self.clock.tick(30)
+        if self.visualize:
+            time.sleep(self.delay)
         if mode == 'rgb_array':
             return np.transpose(pygame.surfarray.array3d(self.screen), (1, 0, 2))
         return None
 
-if __name__ == "__main__":
-    total_start = time.time()  # Start timer for the entire program
-
-    config = {
-        'grid_sizes': [10],
-        'learning_rates': [0.1],
-        'discount_factors': [0.9],
-        'epsilons': [0.05, 0.1, 0.2, 0.4, 0.5],
-        'max_steps_values': [10, 100, 1000, 10000, 100000],
-    }
-    
-    episodes = 1000
-    results = []
-    best_results = {}
-    best_params = {}
-
-    for size in config['grid_sizes']:
-        num_obstacles = max(5, size // 10)
-        
-        # Adjust parameters based on grid size
+# --- Q-Learning Main Loop ---
+def run_qlearning(env, episodes, lr, gamma, epsilon, max_steps, q_table=None):
+    size = env.size
+    if q_table is None:
         if size > 100:
-            lr_options = [0.1, 0.05]
-            gamma_options = [0.99]
-            eps_options = [0.3, 0.4, 0.5]
-            steps_options = [10000]
+            q_table = {}  # Use dictionary for large grids
         else:
-            lr_options = config['learning_rates']
-            gamma_options = config['discount_factors']
-            eps_options = config['epsilons']
-            steps_options = config['max_steps_values']
-
-        for lr, gamma, eps, steps in product(lr_options, gamma_options, eps_options, steps_options):
-            print(f"\nParams: grid_size={size}, lr={lr}, gamma={gamma}, epsilon={eps}, max_steps={steps}")
+            state_size = size ** 4
+            q_table = np.zeros((state_size, 5))
+    rewards = []
+    for ep in range(episodes):
+        state = env.reset_env()
+        total_reward = 0
+        
+        for _ in range(max_steps):
+            action = choose_action(state, q_table, epsilon, env.action_space, size)
+            next_state, reward, done, _ = env.step_env(action)
             
             if size > 100:
-                print("Using sparse Q-table representation for large grid")
-                q_table = {}
+                s_idx = tuple(state)
+                ns_idx = tuple(next_state)
+                if s_idx not in q_table:
+                    q_table[s_idx] = np.zeros(5)
+                if ns_idx not in q_table:
+                    q_table[ns_idx] = np.zeros(5)
+                old_val = q_table[s_idx][action]
+                q_table[s_idx][action] = (1 - lr) * old_val + lr * (reward + gamma * np.max(q_table[ns_idx]))
             else:
-                state_size = size ** 4
-                q_table = np.zeros((state_size, 5))
-                
-            env = CleaningRobotEnv(size=size, num_obstacles=num_obstacles)
-            rewards = []
-            start_time = time.time()  # Start timer for this configuration
+                learn(q_table, state, action, reward, next_state, lr, gamma, size)
+            
+            state = next_state
+            total_reward += reward
+            
+            if env.visualize and env.size <= 100:
+                env.render()
+            
+            if done:
+                break
+        rewards.append(total_reward)
+    return q_table, rewards
 
-            for ep in range(episodes):
-                state = env.reset_env()
-                total_reward = 0
-                
-                for _ in range(steps):
-                    action = choose_action(state, q_table, eps, env.action_space, size)
-                    next_state, reward, done, _ = env.step_env(action)
-                    
-                    if size > 100:
-                        s_idx = tuple(state)
-                        ns_idx = tuple(next_state)
-                        if s_idx not in q_table:
-                            q_table[s_idx] = np.zeros(5)
-                        if ns_idx not in q_table:
-                            q_table[ns_idx] = np.zeros(5)
-                        old_val = q_table[s_idx][action]
-                        q_table[s_idx][action] = (1 - lr) * old_val + lr * (reward + gamma * np.max(q_table[ns_idx]))
-                    else:
-                        learn(q_table, state, action, reward, next_state, lr, gamma, size)
-                    
-                    state = next_state
-                    total_reward += reward
-                    
-                    if ep % 100 == 0 and size <= 100:
-                        env.render()
-                    
-                    if done:
-                        break
-                
-                rewards.append(total_reward)
-                if ep % 100 == 0:
-                    print(f"Episode {ep}, Total Reward: {total_reward}")
+# --- Main Section ---
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--hyperparameter", action="store_true",
+                        help="Run hyperparameter tuning with provided config for each grid size")
+    parser.add_argument("--evaluate", action="store_true",
+                        help="Evaluate on multiple grid sizes. If only --evaluate is passed, use hardcoded parameters. If both --hyperparameter and --evaluate are passed, use tuned parameters.")
+    parser.add_argument("--visualize", action="store_true",
+                        help="Enable visualization with a delay")
+    args = parser.parse_args()
 
-            time_taken = time.time() - start_time
-            final_avg_reward = np.mean(rewards[-100:]) if rewards else 0
-            result_config = {
-                'grid_size': size,
-                'lr': lr,
-                'gamma': gamma,
-                'epsilon': eps,
-                'max_steps': steps,
-                'final_avg_reward': final_avg_reward,
-                'time_taken': time_taken
-            }
-            results.append(result_config)
+    episodes = 1000  # Episodes per configuration
 
-            if size not in best_results or final_avg_reward > best_results[size]['final_avg_reward']:
-                best_results[size] = {'final_avg_reward': final_avg_reward}
-                best_params[size] = result_config
-                os.makedirs("models/q_learning", exist_ok=True)
-                if size <= 100:
-                    np.save(f"models/q_learning/best_model_{size}.npy", q_table)
+    # Default (hardcoded) parameters for training when no flag is provided:
+    default_params = {
+        'grid_size': 10,
+        'lr': 0.1,
+        'gamma': 0.9,
+        'epsilon': 0.1,
+        'max_steps': 1000,
+    }
+
+    tuned_params = {}  # Will hold tuned parameters for each grid size
+
+    if args.hyperparameter:
+        print("\nStarting hyperparameter tuning...")
+        config = {
+            'grid_sizes': [10, 100],
+            'learning_rates': [0.1],
+            'discount_factors': [0.9],
+            'epsilons': [0.05, 0.1, 0.2, 0.4, 0.5],
+            'max_steps_values': [10, 100, 1000, 10000, 100000],
+        }
+        for grid in config['grid_sizes']:
+            print(f"\nTuning for grid size: {grid}")
+            best_final_reward = -np.inf
+            best_config = None
+            for lr, gamma, eps, steps in product(config['learning_rates'],
+                                                 config['discount_factors'],
+                                                 config['epsilons'],
+                                                 config['max_steps_values']):
+                print(f"Tuning params: grid_size={grid}, lr={lr}, gamma={gamma}, epsilon={eps}, max_steps={steps}")
+                env = CleaningRobotEnv(size=grid, num_obstacles=max(5, grid // 10), visualize=args.visualize)
+                _, rewards = run_qlearning(env, episodes, lr, gamma, eps, steps)
+                final_avg_reward = np.mean(rewards[-100:]) if rewards else -np.inf
+                print(f"Final average reward: {final_avg_reward}")
+                if final_avg_reward > best_final_reward:
+                    best_final_reward = final_avg_reward
+                    best_config = {'grid_size': grid, 'lr': lr, 'gamma': gamma, 'epsilon': eps, 'max_steps': steps}
+            tuned_params[grid] = best_config
+            print(f"Best hyperparameters for grid size {grid}: {best_config}")
+    
+    # Evaluation Phase
+    if args.evaluate:
+        print("\nStarting evaluation...")
+        # Evaluation grid sizes: 10, 100, 1000, 10000, 100000, 1e7
+        eval_sizes = [10, 100]
+        for grid in eval_sizes:
+            start_time = time.time()
+            print(f"\nEvaluating on grid size: {grid}")
+            # If hyperparameter tuning was done AND both flags are passed, use tuned parameters.
+            if args.hyperparameter:
+                if grid in tuned_params:
+                    params = tuned_params[grid]
                 else:
-                    pass
+                    # Fallback: use parameters from the smallest tuned grid
+                    params = tuned_params[min(tuned_params.keys())]
+            else:
+                params = default_params
+            env = CleaningRobotEnv(size=grid, num_obstacles=max(5, grid // 10), visualize=args.visualize)
+            _, rewards = run_qlearning(env, episodes,
+                                       params['lr'],
+                                       params['gamma'],
+                                       params['epsilon'],
+                                       params['max_steps'])
+            avg_reward = np.mean(rewards[-100:]) if rewards else None
+            elapsed = time.time() - start_time
+            print(f"Grid size {grid}: Params: {params} | Average Reward (last 100 eps): {avg_reward}")
+            print(f"Time taken for grid size {grid}: {elapsed:.2f} seconds")
+    else:
+        # If not evaluating, just train on grid size 10.
+        if args.hyperparameter:
+            grid_size = tuned_params[10]['grid_size']
+            params = tuned_params[10]
+        else:
+            grid_size = default_params['grid_size']
+            params = default_params
+        env = CleaningRobotEnv(size=grid_size, num_obstacles=max(5, grid_size // 10), visualize=args.visualize)
+        _, rewards = run_qlearning(env, episodes,
+                                   params['lr'],
+                                   params['gamma'],
+                                   params['epsilon'],
+                                   params['max_steps'])
+        print(f"\nTraining complete for grid size {grid_size}!")
+        print(f"Final average reward over last 100 episodes: {np.mean(rewards[-100:])}")
 
-    for size, params in best_params.items():
-        print(f"\nBest params for grid size {size}:")
-        print(params)
-
-    if any(size <= 100 for size in config['grid_sizes']):
+    # Cleanup: Quit pygame if used.
+    if (args.evaluate and ( (args.hyperparameter and any(g <= 100 for g in tuned_params.keys())) or (not args.hyperparameter and default_params['grid_size'] <= 100) )) \
+       or (not args.evaluate and (params['grid_size'] <= 100)):
         pygame.quit()
-
-    total_time = time.time() - total_start  # Total time for entire execution
-    print(f"\nTotal execution time: {total_time:.2f} seconds")
