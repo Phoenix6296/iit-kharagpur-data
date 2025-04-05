@@ -40,7 +40,7 @@ def create_cleaning_environment(grid_size=10, obstacle_count=5, show_visuals=Fal
         pygame.display.set_caption("Cleaning Robot")
         environment['clock'] = pygame.time.Clock()
         # Set background to white for better visibility
-        environment['bg_color'] = (255, 255, 255)
+        environment['bg_color'] = (30, 30, 30)
         environment['grid_color'] = (80, 80, 80)
         environment['wall_color'] = (70, 70, 70)
         environment['dirt_color'] = (255, 165, 0)
@@ -121,7 +121,7 @@ def step_in_environment(environment, action):
     environment['current_reward'] = reward
     environment['step_count'] += 1
     state = np.array([environment['robot_position'][0], environment['robot_position'][1],
-                     environment['dirt_position'][0], environment['dirt_position'][1]], dtype=np.int32)
+                      environment['dirt_position'][0], environment['dirt_position'][1]], dtype=np.int32)
     return state, reward, done, {}
 
 def render_environment(environment):
@@ -250,6 +250,10 @@ def dqn_train(environment, episodes=1000, max_steps=100, learning_rate=0.1, disc
             if total_steps % target_update_freq == 0:
                 target_net.load_state_dict(policy_net.state_dict())
 
+            # Render the environment if visuals are enabled.
+            if environment['show_visuals']:
+                render_environment(environment)
+
             if done:
                 break
         rewards_history.append(ep_reward)
@@ -288,7 +292,7 @@ def perform_hyperparameter_search_dqn(environment):
     return best_params
 
 def evaluate_dqn_performance(hyperparam=False, show_visuals=False):
-    # Evaluate over grid sizes 10, 100, 1000, 10000, and 1e7
+    # Evaluate over grid sizes 10, 100, 1000
     grid_sizes = [10, 100, 1000]
     evaluation_results = {}
     for grid_size in grid_sizes:
