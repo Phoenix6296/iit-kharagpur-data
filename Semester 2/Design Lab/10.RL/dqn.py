@@ -11,9 +11,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-# -------------------------------
-# Environment (same as before)
-# -------------------------------
+# ------------
+# Environment
+# ------------
 class CleaningRobotEnv:
     def __init__(self, size=10, num_obstacles=5, visualize=False, delay=0.01):
         self.size = size
