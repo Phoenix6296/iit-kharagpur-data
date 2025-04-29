@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <list>
 #include <fstream>
 #include <vector>
 #include <sys/types.h>
@@ -30,23 +31,25 @@ using namespace std;
 
 /**
  * @class BlinkDB
- * @brief A simple in-memory key-value store with basic persistence.
+ * @brief A simple in-memory key-value store with basic persistence and LRU eviction.
  *
  * BlinkDB provides thread-safe operations for setting, getting, and deleting keys.
- * It writes all operations to an append-only file (AOF) for durability.
+ * It writes all operations to an append-only file (AOF) for durability. When the number of
+ * stored keys exceeds a limit, it evicts the least recently used key.
  */
 class BlinkDB
 {
 private:
-    unordered_map<string, string> kv_store; ///< Internal in-memory key-value map.
-    const string filename = "blinkdb.aof";  ///< Name of the append-only file for persistence.
-    mutex db_mutex;                         ///< Mutex to ensure thread-safe operations.
+    unordered_map<string, string> kv_store;                        ///< In-memory key-value map.
+    unordered_map<string, list<string>::iterator> lru_map;         ///< Map from key to iterator in LRU list.
+    list<string> lru_list;                                         ///< List of keys by recent usage (front = most recent).
+    const string filename = "blinkdb.aof";                         ///< Append-only file for persistence.
+    mutex db_mutex;                                                ///< Mutex to ensure thread-safe operations.
+    const size_t MAX_KEYS = 100000000;                             ///< Maximum number of keys before eviction.
 
 public:
     /**
      * @brief Constructor that clears any existing AOF file.
-     *
-     * Removes the AOF file at startup to simulate a fresh database instance.
      */
     BlinkDB() { remove(filename.c_str()); }
 
@@ -60,43 +63,65 @@ public:
      * @param key The key to store.
      * @param value The value associated with the key.
      *
-     * This operation is thread-safe. It updates the in-memory store and appends
-     * the corresponding "SET" command to the AOF file for persistence.
+     * Evicts least recently used key if at capacity. Thread-safe.
      */
     void set(const string &key, const string &value)
     {
         lock_guard<mutex> lock(db_mutex);
+        
+        // Evict if new key and capacity reached
+        if (kv_store.find(key) == kv_store.end() && kv_store.size() >= MAX_KEYS)
+        {
+            evictOne();
+        }
+        
+        // Insert or update key in store
         kv_store[key] = value;
+        
+        // Update LRU tracking
+        touchKey(key);
+        
+        // Persist operation
         appendToFile("SET " + key + " " + value);
     }
 
     /**
      * @brief Retrieves the value associated with a key.
      * @param key The key to retrieve.
-     * @return The value associated with the key, or an empty string if the key is not found.
-     *
-     * This function is thread-safe and looks up the value in the in-memory store.
+     * @return The value or empty string if not found.
      */
     string get(const string &key)
     {
         lock_guard<mutex> lock(db_mutex);
         auto it = kv_store.find(key);
-        return it != kv_store.end() ? it->second : "";
+        if (it == kv_store.end())
+        {
+            return "";
+        }
+        // Update LRU since key was accessed
+        touchKey(key);
+        return it->second;
     }
 
     /**
      * @brief Deletes a key-value pair from the database.
      * @param key The key to delete.
-     *
-     * If the key exists in the in-memory store, it is removed and the deletion command
-     * ("DEL") is appended to the AOF file for persistence.
+     * @return True if key was found and deleted.
      */
     bool del(const string &key)
     {
         lock_guard<mutex> lock(db_mutex);
-        if (kv_store.find(key) != kv_store.end())
+        auto it = kv_store.find(key);
+        if (it != kv_store.end())
         {
-            kv_store.erase(key);
+            kv_store.erase(it);
+            // Remove from LRU structures
+            auto lit = lru_map.find(key);
+            if (lit != lru_map.end())
+            {
+                lru_list.erase(lit->second);
+                lru_map.erase(lit);
+            }
             appendToFile("DEL " + key);
             return true;
         }
@@ -104,6 +129,35 @@ public:
     }
 
 private:
+    /**
+     * @brief Touches a key in the LRU list, moving it to the front.
+     */
+    void touchKey(const string &key)
+    {
+        auto mapIt = lru_map.find(key);
+        if (mapIt != lru_map.end())
+        {
+            lru_list.erase(mapIt->second);
+        }
+        lru_list.push_front(key);
+        lru_map[key] = lru_list.begin();
+    }
+
+    /**
+     * @brief Evicts the least recently used key.
+     */
+    void evictOne()
+    {
+        if (!lru_list.empty())
+        {
+            string old_key = lru_list.back();
+            lru_list.pop_back();
+            lru_map.erase(old_key);
+            kv_store.erase(old_key);
+            appendToFile("DEL " + old_key);
+        }
+    }
+
     /**
      * @brief Appends a command to the AOF file for persistence.
      * @param command The command string to append (e.g., "SET key value").
@@ -179,7 +233,6 @@ pair<vector<string>, size_t> parseRESP(const string &input)
 
     return {tokens, pos};
 }
-
 /**
  * @struct ClientState
  * @brief Maintains the read and write buffers for a connected client.
@@ -189,11 +242,10 @@ pair<vector<string>, size_t> parseRESP(const string &input)
  */
 struct ClientState
 {
-    int fd;              ///< File descriptor for the client's socket.
-    string read_buffer;  ///< Buffer to store data read from the client.
-    string write_buffer; ///< Buffer to store data to be written to the client.
+    int fd;
+    string read_buffer;
+    string write_buffer;
 };
-
 /**
  * @class BlinkServer
  * @brief Implements a TCP server that handles multiple client connections using kqueue.
@@ -205,22 +257,13 @@ struct ClientState
  */
 class BlinkServer
 {
-    int server_fd;                           ///< Server socket file descriptor.
-    int kq;                                  ///< kqueue descriptor.
-    BlinkDB db;                              ///< Internal key-value store.
-    unordered_map<int, ClientState> clients; ///< Maps client socket file descriptors to their state.
+    int server_fd;
+    int kq;
+    BlinkDB db;
+    unordered_map<int, ClientState> clients;
 
 public:
-    /**
-     * @brief Default constructor initializes server file descriptor and kqueue descriptor.
-     */
     BlinkServer() : server_fd(-1), kq(-1) {}
-
-    /**
-     * @brief Starts the server.
-     *
-     * This function sets up the server socket, initializes kqueue, and enters the main event loop.
-     */
     void run()
     {
         setupServer();
@@ -319,7 +362,6 @@ private:
             return;
 
         fcntl(client_fd, F_SETFL, O_NONBLOCK);
-
         struct kevent ev;
         EV_SET(&ev, client_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
         kevent(kq, &ev, 1, NULL, 0, NULL);
@@ -383,8 +425,6 @@ private:
             string response;
             processCommand(tokens, response);
             client.write_buffer += response;
-
-            // Remove the processed command from the read buffer.
             client.read_buffer.erase(0, parsed);
         }
 
@@ -422,13 +462,13 @@ private:
         {
             string value = db.get(tokens[1]);
             response = value.empty()
-                           ? "$-1\r\n" // Key not found
+                           ? "$-1\r\n"
                            : "$" + to_string(value.size()) + "\r\n" + value + "\r\n";
         }
         else if (cmd == "DEL" && tokens.size() == 2)
         {
-            bool deleted = db.del(tokens[1]);         // Check if key was deleted
-            response = deleted ? ":1\r\n" : ":0\r\n"; // Correct response for DEL
+            bool deleted = db.del(tokens[1]);
+            response = deleted ? ":1\r\n" : ":0\r\n";
         }
         else
         {
